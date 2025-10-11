@@ -98,6 +98,39 @@ export default function Layout() {
                   </li>
                 </ul>
               </li>
+
+              <li className="pt-4">
+                <p className="px-4 text-xs font-semibold text-gray-500 uppercase">
+                  Harga
+                </p>
+                <ul className="mt-2 space-y-1">
+                  <li>
+                    <Link
+                      to="/category/10.000"
+                      className={`flex items-center px-4 py-2 rounded-md ${isActive('/category/10.000')}`}
+                    >
+                      <span className="ml-6">Dibawah Rp10.000</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/category/10.000-25.000"
+                      className={`flex items-center px-4 py-2 rounded-md ${isActive('/10.000-25.000')}`}
+                    >
+                      <span className="ml-6"> Rp 10.000 - Rp 25.000</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/category/25.000"
+                      className={`flex items-center px-4 py-2 rounded-md ${isActive('/25.000')}`}
+                    >
+                      <span className="ml-6">Diatas Rp 25.000</span>
+                    </Link>
+                  </li> 
+                </ul>
+              </li>
+
               <li className="pt-4">
                 <p className="px-4 text-xs font-semibold text-gray-500 uppercase">
                   Peralatan
@@ -124,7 +157,15 @@ export default function Layout() {
                       to="/equipment/portable-stove"
                       className={`flex items-center px-4 py-2 rounded-md ${isActive('/equipment/portable-stove')}`}
                     >
-                      <span className="ml-6">Kompor Portable</span>
+                      <span className="ml-6">Kompor</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                        to="/equipment/panci-rebus"
+                        className={`flex items-center px-4 py-2 rounded-md ${isActive('/panci-rebus')}`}
+                    >
+                      <span className="ml-6">Panci Rebus</span>
                     </Link>
                   </li>
                 </ul>

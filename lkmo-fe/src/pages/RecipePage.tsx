@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import {
   StarIcon,
   ClockIcon,
   UtensilsIcon,
+  BookmarkIcon,
 } from 'lucide-react'
 
 const MOCK_RECIPE = {
@@ -55,14 +57,38 @@ const MOCK_RECIPE = {
 
 export default function RecipePage() {
   const recipe = MOCK_RECIPE // In a real app, you'd fetch the recipe based on the ID
+  const [isSaved, setIsSaved] = useState(false)
+  
+  const toggleSave = () => {
+    setIsSaved(!isSaved)
+  }
   
   return (
     <div className="max-w-4xl mx-auto">
       {/* Recipe Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          {recipe.title}
-        </h1>
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <h1 className="text-3xl font-bold text-gray-800 flex-1">
+            {recipe.title}
+          </h1>
+          <button
+            onClick={toggleSave}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+              isSaved
+                ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-md'
+                : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-orange-500 hover:text-orange-500'
+            }`}
+            title={isSaved ? 'Hapus dari tersimpan' : 'Simpan resep'}
+          >
+            <BookmarkIcon
+              size={20}
+              className={isSaved ? 'fill-current' : ''}
+            />
+            <span className="hidden sm:inline">
+              {isSaved ? 'Tersimpan' : 'Simpan'}
+            </span>
+          </button>
+        </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
           <div className="flex items-center">
             <StarIcon
@@ -81,15 +107,17 @@ export default function RecipePage() {
           </div>
         </div>
         {/* Author info */}
-        <div className="flex items-center mb-6">
-          <img
-            src={recipe.author.image}
-            alt={recipe.author.name}
-            className="w-10 h-10 rounded-full mr-3 object-cover"
-          />
-          <div>
-            <p className="font-medium">{recipe.author.name}</p>
-            <p className="text-sm text-gray-500">{recipe.date}</p>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <img
+              src={recipe.author.image}
+              alt={recipe.author.name}
+              className="w-10 h-10 rounded-full mr-3 object-cover"
+            />
+            <div>
+              <p className="font-medium">{recipe.author.name}</p>
+              <p className="text-sm text-gray-500">{recipe.date}</p>
+            </div>
           </div>
         </div>
       </div>

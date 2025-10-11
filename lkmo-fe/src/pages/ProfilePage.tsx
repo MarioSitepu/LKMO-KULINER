@@ -7,8 +7,8 @@ const USER_PROFILE = {
   name: 'Budi Santoso',
   image:
     'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  bio: 'Mahasiswa teknik yang hobi masak makanan simpel tapi enak. Spesialis masakan rice cooker dan microwave.',
-  location: 'Bandung, Indonesia',
+  bio: 'Mahasiswa teknik informatika hobi masak makanan simpel tapi enak. Spesialis masakan rice cooker.',
+  location: 'Medan, Indonesia',
   joinDate: 'April 2023',
   recipes: 8,
   followers: 124,
