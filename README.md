@@ -20,22 +20,22 @@ Cocok digunakan untuk proyek pribadi, portofolio, maupun kolaborasi tim frontend
 
 ### 1️⃣ Clone Repositori
 ```bash
-git clone https://github.com/username/nama-repo.git
+https://github.com/MarioSitepu/LKMO-KULINER
 ```
 
 ### 2️⃣ Masuk ke direktori proyek:
 ```bash
-git clone https://github.com/username/nama-repo.git
+cd lkmo-fe
 ```
 
 ### 3️⃣ Install Dependency
 ```bash
-cd lkmo-fe
+npm install
 ```
 
 ### 4️⃣ Jalankan Server Development
 ```bash
-npm run dev
+cd lkmo-fe
 ```
 Setelah perintah dijalankan, Vite akan memunculkan URL lokal seperti ini:
 ```bash
