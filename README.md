@@ -1,8 +1,6 @@
 # ⚡ React + Vite + Tailwind CSS Starter Project
 
-Proyek ini merupakan template modern menggunakan **React**, **Vite**, dan **Tailwind CSS**, dirancang untuk pengembangan web yang cepat, ringan, dan efisien.  
-Cocok digunakan untuk proyek pribadi, portofolio, maupun kolaborasi tim frontend.
-
+Proyek ini merupakan template modern menggunakan **React**, **Vite**, dan **Tailwind CSS**, dirancang untuk pengembangan web yang cepat, ringan, dan efisien. 
 ---
 
 ## 🧩 Teknologi yang Digunakan
