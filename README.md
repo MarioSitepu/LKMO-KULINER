@@ -33,7 +33,7 @@ npm install
 
 ### 4️⃣ Jalankan Server Development
 ```bash
-cd lkmo-fe
+npm run dev
 ```
 Setelah perintah dijalankan, Vite akan memunculkan URL lokal seperti ini:
 ```bash
