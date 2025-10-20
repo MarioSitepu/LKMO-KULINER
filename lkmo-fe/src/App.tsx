@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import EquipmentPage from './pages/EquipmentPage'
 import CategoryPage from './pages/CategoryPage'
+import SearchPage from './pages/SearchPage' // <-- 1. IMPORT HALAMAN BARU
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="equipment/:type" element={<EquipmentPage />} />
         <Route path="category/:type" element={<CategoryPage />} />
+        <Route path="search" element={<SearchPage />} /> {/* <-- 2. TAMBAHKAN RUTE BARU */}
         </Route>
       </Routes>
     </>
@@ -30,4 +32,3 @@ function App() {
 }
 
 export default App
-
