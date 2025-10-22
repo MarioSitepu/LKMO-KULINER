@@ -252,6 +252,29 @@ export default function UploadRecipePage() {
           </button>
         </div>
 
+        {/* Harga */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-bold mb-6">Perkiraan Harga</h2>
+          <div className="space-y-4" id="steps-container">
+            <div className="flex gap-2">
+              <div className="flex-shrink-0 pt-3">
+              </div>
+              <div className="flex-1">
+                <input
+                type="text"
+                name="ingredients[]"
+                className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                required
+              />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-shrink-0 pt-3">
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Submit */}
         <div className="flex justify-end gap-3">
           <button

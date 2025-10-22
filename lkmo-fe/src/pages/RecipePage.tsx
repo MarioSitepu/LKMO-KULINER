@@ -4,6 +4,7 @@ import {
   ClockIcon,
   UtensilsIcon,
   BookmarkIcon,
+  DollarSignIcon,
 } from 'lucide-react'
 
 const MOCK_RECIPE = {
@@ -14,6 +15,7 @@ const MOCK_RECIPE = {
   rating: 4.7,
   prepTime: '15 menit',
   equipment: ['Kompor Portable', 'Wajan'],
+  price: '10.000',
   author: {
     name: 'Budi Santoso',
     image:
@@ -105,6 +107,10 @@ export default function RecipePage() {
             <UtensilsIcon size={18} className="mr-1" />
             <span>{recipe.equipment.join(', ')}</span>
           </div>
+          <div className="flex items-center">
+            <DollarSignIcon size={18} className="mr-1" />
+            <span>{recipe.price}</span>
+          </div>
         </div>
         {/* Author info */}
         <div className="flex items-center justify-between mb-6">
@@ -127,7 +133,7 @@ export default function RecipePage() {
         <img
           src={recipe.image}
           alt={recipe.title}
-          className="w-full h-auto object-cover"
+          className="w-125 h-125 object-cover"
         />
       </div>
 
