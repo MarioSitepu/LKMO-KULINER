@@ -10,7 +10,7 @@ export default function LoginPage() {
             <CookingPotIcon size={32} className="text-orange-500" />
             <h1 className="text-2xl font-bold text-orange-500">
               YangPentingMakan
-            </h1>
+          </h1>
           </Link>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-800">

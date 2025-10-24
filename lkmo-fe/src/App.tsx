@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage'
 import EquipmentPage from './pages/EquipmentPage'
 import CategoryPage from './pages/CategoryPage'
 import SearchPage from './pages/SearchPage' // <-- 1. IMPORT HALAMAN BARU
+import EditProfilePage from './pages/EditProfilePage'
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="recipe/:id" element={<RecipePage />} />
         <Route path="upload" element={<UploadRecipePage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="edit-profile" element={<EditProfilePage />} />
         <Route path="equipment/:type" element={<EquipmentPage />} />
         <Route path="category/:type" element={<CategoryPage />} />
         <Route path="search" element={<SearchPage />} /> {/* <-- 2. TAMBAHKAN RUTE BARU */}
