@@ -1,8 +1,157 @@
+import { useState, FormEvent, ChangeEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PlusIcon, XIcon } from 'lucide-react'
+import { recipeAPI } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function UploadRecipePage() {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  
+  const [formData, setFormData] = useState({
+    title: '',
+    category: '',
+    prepTime: '',
+    price: '',
+    image: null as File | null,
+    equipment: [] as string[],
+    otherEquipment: '',
+    ingredients: ['', ''],
+    steps: ['', ''],
+  })
+
+  // Redirect if not authenticated
+  if (!isAuthenticated) {
+    navigate('/login')
+    return null
+  }
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setFormData({ ...formData, image: file })
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleEquipmentChange = (item: string, checked: boolean) => {
+    if (checked) {
+      setFormData({
+        ...formData,
+        equipment: [...formData.equipment, item],
+      })
+    } else {
+      setFormData({
+        ...formData,
+        equipment: formData.equipment.filter((e) => e !== item),
+      })
+    }
+  }
+
+  const addIngredient = () => {
+    setFormData({
+      ...formData,
+      ingredients: [...formData.ingredients, ''],
+    })
+  }
+
+  const removeIngredient = (index: number) => {
+    setFormData({
+      ...formData,
+      ingredients: formData.ingredients.filter((_, i) => i !== index),
+    })
+  }
+
+  const updateIngredient = (index: number, value: string) => {
+    const newIngredients = [...formData.ingredients]
+    newIngredients[index] = value
+    setFormData({ ...formData, ingredients: newIngredients })
+  }
+
+  const addStep = () => {
+    setFormData({
+      ...formData,
+      steps: [...formData.steps, ''],
+    })
+  }
+
+  const removeStep = (index: number) => {
+    setFormData({
+      ...formData,
+      steps: formData.steps.filter((_, i) => i !== index),
+    })
+  }
+
+  const updateStep = (index: number, value: string) => {
+    const newSteps = [...formData.steps]
+    newSteps[index] = value
+    setFormData({ ...formData, steps: newSteps })
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      // Validate
+      if (!formData.title || !formData.category || !formData.prepTime) {
+        throw new Error('Harap lengkapi semua field wajib')
+      }
+
+      const filteredIngredients = formData.ingredients.filter((ing) => ing.trim() !== '')
+      const filteredSteps = formData.steps.filter((step) => step.trim() !== '')
+
+      if (filteredIngredients.length === 0) {
+        throw new Error('Minimal 1 bahan diperlukan')
+      }
+
+      if (filteredSteps.length === 0) {
+        throw new Error('Minimal 1 langkah diperlukan')
+      }
+
+      // Combine equipment
+      let allEquipment = [...formData.equipment]
+      if (formData.otherEquipment.trim()) {
+        const other = formData.otherEquipment.split(',').map((e) => e.trim()).filter((e) => e)
+        allEquipment = [...allEquipment, ...other]
+      }
+
+      // Create FormData
+      const submitData = new FormData()
+      submitData.append('title', formData.title)
+      submitData.append('category', formData.category)
+      submitData.append('prepTime', formData.prepTime)
+      submitData.append('price', formData.price || '')
+      submitData.append('ingredients', JSON.stringify(filteredIngredients))
+      submitData.append('steps', JSON.stringify(filteredSteps))
+      
+      if (allEquipment.length > 0) {
+        submitData.append('equipment', JSON.stringify(allEquipment))
+      }
+
+      if (formData.image) {
+        submitData.append('image', formData.image)
+      }
+
+      await recipeAPI.create(submitData)
+      navigate('/profile')
+    } catch (err: any) {
+      setError(err.message || 'Gagal membuat resep. Silakan coba lagi.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         Upload Resep Baru
       </h1>
@@ -11,7 +160,13 @@ export default function UploadRecipePage() {
         kos!
       </p>
 
-      <form className="space-y-8">
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
+          {error}
+        </div>
+      )}
+
+      <form className="space-y-8" onSubmit={handleSubmit}>
         {/* Basic Info */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-bold mb-6">Informasi Dasar</h2>
@@ -26,7 +181,8 @@ export default function UploadRecipePage() {
               <input
                 type="text"
                 id="title"
-                name="title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Contoh: Telur Dadar Mie Instan"
                 className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
                 required
@@ -41,7 +197,8 @@ export default function UploadRecipePage() {
               </label>
               <select
                 id="category"
-                name="category"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
                 required
               >
@@ -63,7 +220,8 @@ export default function UploadRecipePage() {
                 <input
                   type="number"
                   id="prepTime"
-                  name="prepTime"
+                  value={formData.prepTime}
+                  onChange={(e) => setFormData({ ...formData, prepTime: e.target.value })}
                   min="1"
                   placeholder="15"
                   className="w-full p-3 border border-gray-300 rounded-l-md focus:ring-orange-500 focus:border-orange-500"
@@ -73,6 +231,22 @@ export default function UploadRecipePage() {
                   menit
                 </span>
               </div>
+            </div>
+            <div className="col-span-2">
+              <label
+                htmlFor="price"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Perkiraan Harga
+              </label>
+              <input
+                type="text"
+                id="price"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                placeholder="Contoh: Rp 15.000"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+              />
             </div>
           </div>
         </div>
@@ -84,22 +258,30 @@ export default function UploadRecipePage() {
             <input
               type="file"
               id="image"
-              name="image"
-              className="hidden"
               accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
             />
             <label htmlFor="image" className="cursor-pointer">
-              <div className="space-y-2">
-                <div className="mx-auto w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                  <PlusIcon size={24} className="text-orange-500" />
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="mx-auto max-h-64 rounded-lg"
+                />
+              ) : (
+                <div className="space-y-2">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                    <PlusIcon size={24} className="text-orange-500" />
+                  </div>
+                  <div className="text-gray-700 font-medium">
+                    Klik untuk mengunggah foto
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    PNG, JPG atau JPEG (maks. 5MB)
+                  </p>
                 </div>
-                <div className="text-gray-700 font-medium">
-                  Klik untuk mengunggah foto
-                </div>
-                <p className="text-sm text-gray-500">
-                  PNG, JPG atau JPEG (maks. 5MB)
-                </p>
-              </div>
+              )}
             </label>
           </div>
         </div>
@@ -125,8 +307,8 @@ export default function UploadRecipePage() {
                   <input
                     type="checkbox"
                     className="mr-2 text-orange-500 focus:ring-orange-500"
-                    name="equipment"
-                    value={item}
+                    checked={formData.equipment.includes(item)}
+                    onChange={(e) => handleEquipmentChange(item, e.target.checked)}
                   />
                   <span>{item}</span>
                 </label>
@@ -142,7 +324,8 @@ export default function UploadRecipePage() {
               <input
                 type="text"
                 id="other-equipment"
-                name="other-equipment"
+                value={formData.otherEquipment}
+                onChange={(e) => setFormData({ ...formData, otherEquipment: e.target.value })}
                 placeholder="Pisahkan dengan koma (contoh: pisau, talenan)"
                 className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
               />
@@ -153,125 +336,79 @@ export default function UploadRecipePage() {
         {/* Ingredients */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-bold mb-6">Bahan-bahan</h2>
-          <div className="space-y-4" id="ingredients-container">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                name="ingredients[]"
-                placeholder="Contoh: 2 butir telur"
-                className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                required
-              />
-              <button
-                type="button"
-                className="p-3 text-gray-400 hover:text-gray-600"
-              >
-                <XIcon size={20} />
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                name="ingredients[]"
-                placeholder="Contoh: 1 bungkus mie instan"
-                className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                required
-              />
-              <button
-                type="button"
-                className="p-3 text-gray-400 hover:text-gray-600"
-              >
-                <XIcon size={20} />
-              </button>
-            </div>
+          <div className="space-y-4">
+            {formData.ingredients.map((ingredient, index) => (
+              <div key={index} className="flex gap-2">
+                <input
+                  type="text"
+                  value={ingredient}
+                  onChange={(e) => updateIngredient(index, e.target.value)}
+                  placeholder="Contoh: 2 butir telur"
+                  className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                  required={index < 2}
+                />
+                {formData.ingredients.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeIngredient(index)}
+                    className="p-3 text-gray-400 hover:text-red-600"
+                  >
+                    <XIcon size={20} />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addIngredient}
+              className="mt-4 flex items-center text-sm text-orange-500 font-medium"
+            >
+              <PlusIcon size={16} className="mr-1" />
+              Tambah Bahan
+            </button>
           </div>
-          <button
-            type="button"
-            className="mt-4 flex items-center text-sm text-orange-500 font-medium"
-          >
-            <PlusIcon size={16} className="mr-1" />
-            Tambah Bahan
-          </button>
         </div>
 
         {/* Steps */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-bold mb-6">Cara Pembuatan</h2>
-          <div className="space-y-4" id="steps-container">
-            <div className="flex gap-2">
-              <div className="flex-shrink-0 pt-3">
-                <div className="flex items-center justify-center w-6 h-6 bg-orange-100 text-orange-500 font-medium rounded-full">
-                  1
+          <div className="space-y-4">
+            {formData.steps.map((step, index) => (
+              <div key={index} className="flex gap-2">
+                <div className="flex-shrink-0 pt-3">
+                  <div className="flex items-center justify-center w-6 h-6 bg-orange-100 text-orange-500 font-medium rounded-full">
+                    {index + 1}
+                  </div>
                 </div>
-              </div>
-              <div className="flex-1">
-                <textarea
-                  name="steps[]"
-                  rows={2}
-                  placeholder="Jelaskan langkah pertama..."
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                  required
-                ></textarea>
-              </div>
-              <button
-                type="button"
-                className="p-3 text-gray-400 hover:text-gray-600"
-              >
-                <XIcon size={20} />
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-shrink-0 pt-3">
-                <div className="flex items-center justify-center w-6 h-6 bg-orange-100 text-orange-500 font-medium rounded-full">
-                  2
+                <div className="flex-1">
+                  <textarea
+                    value={step}
+                    onChange={(e) => updateStep(index, e.target.value)}
+                    rows={2}
+                    placeholder="Jelaskan langkah..."
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                    required={index < 2}
+                  />
                 </div>
+                {formData.steps.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeStep(index)}
+                    className="p-3 text-gray-400 hover:text-red-600"
+                  >
+                    <XIcon size={20} />
+                  </button>
+                )}
               </div>
-              <div className="flex-1">
-                <textarea
-                  name="steps[]"
-                  rows={2}
-                  placeholder="Jelaskan langkah kedua..."
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                  required
-                ></textarea>
-              </div>
-              <button
-                type="button"
-                className="p-3 text-gray-400 hover:text-gray-600"
-              >
-                <XIcon size={20} />
-              </button>
-            </div>
-          </div>
-          <button
-            type="button"
-            className="mt-4 flex items-center text-sm text-orange-500 font-medium"
-          >
-            <PlusIcon size={16} className="mr-1" />
-            Tambah Langkah
-          </button>
-        </div>
-
-        {/* Harga */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-bold mb-6">Perkiraan Harga</h2>
-          <div className="space-y-4" id="steps-container">
-            <div className="flex gap-2">
-              <div className="flex-shrink-0 pt-3">
-              </div>
-              <div className="flex-1">
-                <input
-                type="text"
-                name="ingredients[]"
-                className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-                required
-              />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-shrink-0 pt-3">
-              </div>
-            </div>
+            ))}
+            <button
+              type="button"
+              onClick={addStep}
+              className="mt-4 flex items-center text-sm text-orange-500 font-medium"
+            >
+              <PlusIcon size={16} className="mr-1" />
+              Tambah Langkah
+            </button>
           </div>
         </div>
 
@@ -279,15 +416,17 @@ export default function UploadRecipePage() {
         <div className="flex justify-end gap-3">
           <button
             type="button"
+            onClick={() => navigate(-1)}
             className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50"
           >
-            Simpan Draft
+            Batal
           </button>
           <button
             type="submit"
-            className="px-6 py-3 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600"
+            disabled={loading}
+            className="px-6 py-3 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Publikasikan Resep
+            {loading ? 'Menyimpan...' : 'Publikasikan Resep'}
           </button>
         </div>
       </form>

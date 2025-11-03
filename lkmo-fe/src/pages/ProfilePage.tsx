@@ -1,97 +1,98 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { SettingsIcon, BookmarkIcon, LogOutIcon } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { BookmarkIcon, LogOutIcon } from 'lucide-react'
 import RecipeCard from '../components/RecipeCard'
+import { userAPI } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
 
-const USER_PROFILE = {
-  name: 'Budi Santoso',
-  image:
-    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-  bio: 'Mahasiswa teknik informatika hobi masak makanan simpel tapi enak. Spesialis masakan rice cooker.',
-  location: 'Medan, Indonesia',
-  joinDate: 'April 2023',
-  recipes: 8,
-  followers: 124,
-  following: 56,
+interface Recipe {
+  _id: string
+  id?: string
+  title: string
+  image?: string | null
+  rating: number
+  prepTime: number | string
+  equipment: string[]
+  author: {
+    name: string
+    image?: string
+  }
+  price?: string
 }
 
-const USER_RECIPES = [
-  {
-    id: '1',
-    title: 'Telur Dadar Mie Instan',
-    image:
-      'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.7,
-    prepTime: '15 menit',
-    equipment: ['Kompor Portable'],
-    author: 'Budi Santoso',
-    price: 'Rp 8.000',
-  },
-  {
-    id: '2',
-    title: 'Nasi Goreng Rice Cooker',
-    image:
-      'https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.5,
-    prepTime: '20 menit',
-    equipment: ['Rice Cooker'],
-    author: 'Budi Santoso',
-    price: 'Rp 12.000',
-  },
-  {
-    id: '3',
-    title: 'Roti Panggang Telur Keju',
-    image:
-      'https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.3,
-    prepTime: '10 menit',
-    equipment: ['Microwave'],
-    author: 'Budi Santoso',
-    price: 'Rp 6.000',
-  },
-  {
-    id: '4',
-    title: 'Mac & Cheese Microwave',
-    image:
-      'https://images.unsplash.com/photo-1543339494-b4cd4f7ba686?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.2,
-    prepTime: '12 menit',
-    equipment: ['Microwave'],
-    author: 'Budi Santoso',
-    price: 'Rp 15.000',
-  },
-]
-
-const SAVED_RECIPES = [
-  {
-    id: '5',
-    title: 'Pasta Aglio e Olio Simple',
-    image:
-      'https://images.unsplash.com/photo-1556761223-4c4282c73f77?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.8,
-    prepTime: '25 menit',
-    equipment: ['Kompor Portable'],
-    author: 'Siti Aminah',
-    price: 'Rp 18.000',
-  },
-  {
-    id: '6',
-    title: 'Sandwich Tuna Mayo',
-    image:
-      'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.6,
-    prepTime: '10 menit',
-    equipment: ['No Cook'],
-    author: 'Andi Wijaya',
-    price: 'Rp 9.000',
-  },
-]
-
 export default function ProfilePage() {
+  const navigate = useNavigate()
+  const { user, logout, isAuthenticated } = useAuth()
   const [activeTab, setActiveTab] = useState('recipes')
-  
+  const [loading, setLoading] = useState(true)
+  const [profileData, setProfileData] = useState<any>(null)
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+
+    loadProfile()
+  }, [isAuthenticated, navigate])
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true)
+      const response = await userAPI.getProfile()
+      setProfileData(response.data)
+      setRecipes(response.data.recipes || [])
+      setSavedRecipes(response.data.savedRecipes || [])
+    } catch (error) {
+      console.error('Error loading profile:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
+  if (!isAuthenticated) {
+    return null
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="text-center py-12">
+          <div className="text-gray-500">Memuat profil...</div>
+        </div>
+      </div>
+    )
+  }
+
+  const profile = profileData?.user || user
+  const stats = profileData?.stats || {
+    recipesCount: 0,
+    followersCount: 0,
+    followingCount: 0,
+  }
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+  }
+
+  const getImageUrl = (image: string | null | undefined) => {
+    if (!image) return 'https://via.placeholder.com/200'
+    if (image.startsWith('http')) return image
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    return `${apiUrl}${image}`
+  }
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto p-6">
       {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
         <div className="bg-orange-100 h-32"></div>
@@ -99,51 +100,59 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-end -mt-16 mb-4 gap-4">
             <div className="relative">
               <img
-                src={USER_PROFILE.image}
-                alt={USER_PROFILE.name}
+                src={getImageUrl(profile?.image)}
+                alt={profile?.name || 'User'}
                 className="w-24 h-24 rounded-full border-4 border-white object-cover"
               />
-              <button className="absolute bottom-0 right-0 bg-orange-500 text-white p-1 rounded-full">
-                <SettingsIcon size={16} />
-              </button>
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-800">
-                {USER_PROFILE.name}
+                {profile?.name || 'User'}
               </h1>
-              <p className="text-gray-500 text-sm">
-                Bergabung {USER_PROFILE.joinDate}
-              </p>
+              {profile?.createdAt && (
+                <p className="text-gray-500 text-sm">
+                  Bergabung {formatDate(profile.createdAt)}
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
-              <Link 
+              <Link
                 to="/edit-profile"
                 className="px-4 py-2 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600"
               >
                 Edit Profil
               </Link>
-              <button className="p-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+              <button
+                onClick={handleLogout}
+                className="p-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                title="Logout"
+              >
                 <LogOutIcon size={18} />
               </button>
             </div>
           </div>
-          <p className="text-gray-700 mb-4">{USER_PROFILE.bio}</p>
+          {profile?.bio && (
+            <p className="text-gray-700 mb-4">{profile.bio}</p>
+          )}
+          {profile?.location && (
+            <p className="text-gray-500 text-sm mb-4">{profile.location}</p>
+          )}
           <div className="flex flex-wrap gap-6">
             <div className="flex items-center text-gray-600">
               <span className="font-medium text-gray-900 mr-1">
-                {USER_PROFILE.recipes}
+                {stats.recipesCount || 0}
               </span>{' '}
               Resep
             </div>
             <div className="flex items-center text-gray-600">
               <span className="font-medium text-gray-900 mr-1">
-                {USER_PROFILE.followers}
+                {stats.followersCount || 0}
               </span>{' '}
               Pengikut
             </div>
             <div className="flex items-center text-gray-600">
               <span className="font-medium text-gray-900 mr-1">
-                {USER_PROFILE.following}
+                {stats.followingCount || 0}
               </span>{' '}
               Mengikuti
             </div>
@@ -155,13 +164,21 @@ export default function ProfilePage() {
       <div className="border-b border-gray-200 mb-6">
         <div className="flex overflow-x-auto">
           <button
-            className={`py-3 px-6 border-b-2 font-medium text-sm ${activeTab === 'recipes' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            className={`py-3 px-6 border-b-2 font-medium text-sm ${
+              activeTab === 'recipes'
+                ? 'border-orange-500 text-orange-500'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
             onClick={() => setActiveTab('recipes')}
           >
             Resep Saya
           </button>
           <button
-            className={`py-3 px-6 border-b-2 font-medium text-sm ${activeTab === 'saved' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            className={`py-3 px-6 border-b-2 font-medium text-sm ${
+              activeTab === 'saved'
+                ? 'border-orange-500 text-orange-500'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
             onClick={() => setActiveTab('saved')}
           >
             <div className="flex items-center">
@@ -182,11 +199,33 @@ export default function ProfilePage() {
                 + Tambah Resep Baru
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {USER_RECIPES.map((recipe) => (
-                <RecipeCard key={recipe.id} {...recipe} />
-              ))}
-            </div>
+            {recipes.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <p>Belum ada resep. Mulai dengan membuat resep pertama!</p>
+                <Link
+                  to="/upload"
+                  className="mt-4 inline-block text-orange-500 hover:underline"
+                >
+                  Upload Resep
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recipes.map((recipe) => (
+                  <RecipeCard
+                    key={recipe._id || recipe.id}
+                    id={recipe._id || recipe.id || ''}
+                    title={recipe.title}
+                    image={getImageUrl(recipe.image)}
+                    rating={recipe.rating || 0}
+                    prepTime={`${recipe.prepTime} menit`}
+                    equipment={recipe.equipment || []}
+                    author={recipe.author?.name || 'Unknown'}
+                    price={recipe.price || ''}
+                  />
+                ))}
+              </div>
+            )}
           </>
         )}
         {activeTab === 'saved' && (
@@ -196,11 +235,27 @@ export default function ProfilePage() {
                 Resep Tersimpan
               </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {SAVED_RECIPES.map((recipe) => (
-                <RecipeCard key={recipe.id} {...recipe} />
-              ))}
-            </div>
+            {savedRecipes.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <p>Belum ada resep yang disimpan.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {savedRecipes.map((recipe) => (
+                  <RecipeCard
+                    key={recipe._id || recipe.id}
+                    id={recipe._id || recipe.id || ''}
+                    title={recipe.title}
+                    image={getImageUrl(recipe.image)}
+                    rating={recipe.rating || 0}
+                    prepTime={`${recipe.prepTime} menit`}
+                    equipment={recipe.equipment || []}
+                    author={recipe.author?.name || 'Unknown'}
+                    price={recipe.price || ''}
+                  />
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
