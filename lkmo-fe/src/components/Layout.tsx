@@ -90,14 +90,14 @@ export default function Layout() {
               {/* === AKHIR PERUBAHAN === */}
 
 
-              {/* DROPDOWN KATEGORI */}
+              {/* DROPDOWN WAKTU MAKAN */}
               <li className="pt-2">
                 <button
                   onClick={() => setIsKategoriOpen(!isKategoriOpen)}
                   className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-orange-50"
                 >
                   <p className="text-xs font-semibold text-gray-500 uppercase">
-                    Kategori
+                    Waktu Makan
                   </p>
                   <ChevronDownIcon
                     size={16}

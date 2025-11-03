@@ -109,6 +109,21 @@ export const recipeAPI = {
     const response = await api.post(`/recipes/${id}/reviews`, data);
     return response.data;
   },
+  
+  getLatest: async (limit: number = 4) => {
+    const response = await api.get('/recipes', {
+      params: {
+        limit,
+        sort: 'createdAt'
+      }
+    });
+    return response.data;
+  },
+  
+  getPopularCategories: async () => {
+    const response = await api.get('/recipes/stats/popular-categories');
+    return response.data;
+  },
 };
 
 // User API

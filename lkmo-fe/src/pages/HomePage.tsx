@@ -1,80 +1,81 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
+import { recipeAPI } from '../services/api'
 
-const FEATURED_RECIPES = [
-  {
-    id: '1',
-    title: 'Telur Dadar Mie Instan',
-    image:
-      'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.7,
-    prepTime: '15 menit',
-    equipment: ['Kompor Portable'],
-    author: 'Budi Santoso',
-    price: 'Rp 8.000',
-  },
-  {
-    id: '2',
-    title: 'Nasi Goreng Rice Cooker',
-    image:
-      'https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.5,
-    prepTime: '20 menit',
-    equipment: ['Rice Cooker'],
-    author: 'Siti Aminah',
-    price: 'Rp 12.000',
-  },
-  {
-    id: '3',
-    title: 'Roti Panggang Telur Keju',
-    image:
-      'https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.3,
-    prepTime: '10 menit',
-    equipment: ['Microwave'],
-    author: 'Andi Wijaya',
-    price: 'Rp 6.000',
-  },
-  {
-    id: '4',
-    title: 'Mac & Cheese Microwave',
-    image:
-      'https://images.unsplash.com/photo-1543339494-b4cd4f7ba686?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.2,
-    prepTime: '12 menit',
-    equipment: ['Microwave'],
-    author: 'Dewi Putri',
-    price: 'Rp 15.000',
-  },
-]
+interface Recipe {
+  _id: string
+  title: string
+  image: string | null
+  rating: number
+  prepTime: number
+  equipment: string[]
+  author: {
+    name: string
+    image?: string
+  }
+  price: string
+}
 
-const POPULAR_CATEGORIES = [
-  {
-    name: 'Sarapan',
-    image:
-      'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    path: '/category/breakfast',
-  },
-  {
-    name: 'Rice Cooker',
-    image:
-      'https://images.unsplash.com/photo-1596797038530-2c107229654b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    path: '/equipment/rice-cooker',
-  },
-  {
-    name: 'Makan Siang',
-    image:
-      'https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    path: '/category/lunch',
-  },
-  {
-    name: 'Camilan',
-    image:
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    path: '/category/snack',
-  },
-]
+interface Category {
+  name: string
+  image: string
+  path: string
+  count: number
+}
 
 export default function HomePage() {
+  const [latestRecipes, setLatestRecipes] = useState<Recipe[]>([])
+  const [popularCategories, setPopularCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Load latest recipes and popular categories in parallel
+      const [latestResponse, categoriesResponse] = await Promise.all([
+        recipeAPI.getLatest(4),
+        recipeAPI.getPopularCategories()
+      ])
+
+      if (latestResponse.success && latestResponse.data?.recipes) {
+        setLatestRecipes(latestResponse.data.recipes)
+      }
+
+      if (categoriesResponse.success && categoriesResponse.data?.categories) {
+        setPopularCategories(categoriesResponse.data.categories)
+      }
+    } catch (err: any) {
+      console.error('Error loading data:', err)
+      setError(err.response?.data?.message || 'Gagal memuat data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getImageUrl = (image: string | null | undefined) => {
+    if (!image) return 'https://via.placeholder.com/400x300?text=No+Image'
+    if (image.startsWith('http')) return image
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    return `${apiUrl}${image}`
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center py-12">
+          <div className="text-gray-500">Memuat data...</div>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="space-y-8">
       {/* Hero Section */}
@@ -96,18 +97,18 @@ export default function HomePage() {
             ramah di kantong!
           </p>
           <div className="flex flex-wrap gap-3">
-            <a
-              href="/upload"
+            <Link
+              to="/upload"
               className="px-6 py-3 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 transition-colors"
             >
               Upload Resep
-            </a>
-            <a
-              href="/category/breakfast"
+            </Link>
+            <Link
+              to="/category/breakfast"
               className="px-6 py-3 bg-white text-orange-500 font-medium rounded-md hover:bg-orange-50 transition-colors"
             >
               Jelajahi Resep
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -116,30 +117,41 @@ export default function HomePage() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Kategori Populer</h2>
-          <a href="/categories" className="text-orange-500 hover:underline">
+          <Link to="/category/breakfast" className="text-orange-500 hover:underline">
             Lihat Semua
-          </a>
+          </Link>
         </div>
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {POPULAR_CATEGORIES.map((category, index) => (
-            <a
-              key={index}
-              href={category.path}
-              className="relative rounded-lg overflow-hidden h-32 group"
-            >
-              <img
-                src={category.image}
-                alt={category.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <h3 className="text-lg font-bold text-white">
-                  {category.name}
-                </h3>
-              </div>
-            </a>
-          ))}
+          {popularCategories.length > 0 ? (
+            popularCategories.map((category, index) => (
+              <Link
+                key={index}
+                to={category.path}
+                className="relative rounded-lg overflow-hidden h-32 group"
+              >
+                <img
+                  src={getImageUrl(category.image)}
+                  alt={category.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <h3 className="text-lg font-bold text-white">
+                    {category.name}
+                  </h3>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-4 text-center text-gray-500 py-8">
+              Belum ada kategori
+            </div>
+          )}
         </div>
       </section>
 
@@ -147,14 +159,30 @@ export default function HomePage() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Resep Terbaru</h2>
-          <a href="/recipes" className="text-orange-500 hover:underline">
+          <Link to="/category/breakfast" className="text-orange-500 hover:underline">
             Lihat Semua
-          </a>
+          </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {FEATURED_RECIPES.map((recipe) => (
-            <RecipeCard key={recipe.id} {...recipe} />
-          ))}
+          {latestRecipes.length > 0 ? (
+            latestRecipes.map((recipe) => (
+              <RecipeCard
+                key={recipe._id}
+                id={recipe._id}
+                title={recipe.title}
+                image={getImageUrl(recipe.image)}
+                rating={recipe.rating || 0}
+                prepTime={`${recipe.prepTime} menit`}
+                equipment={recipe.equipment || []}
+                author={recipe.author?.name || 'Unknown'}
+                price={recipe.price || 'Rp 0'}
+              />
+            ))
+          ) : (
+            <div className="col-span-4 text-center text-gray-500 py-8">
+              Belum ada resep terbaru
+            </div>
+          )}
         </div>
       </section>
 
@@ -170,12 +198,12 @@ export default function HomePage() {
               dengan budget terbatas!
             </p>
           </div>
-          <a
-            href="/upload"
+          <Link
+            to="/upload"
             className="px-6 py-3 bg-orange-500 text-center text-white font-medium rounded-md hover:bg-orange-600 transition-colors md:whitespace-nowrap"
           >
             Upload Resep Sekarang
-          </a>
+          </Link>
         </div>
       </section>
     </div>

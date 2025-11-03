@@ -190,6 +190,87 @@ router.get('/', [
   }
 });
 
+// @route   GET /api/recipes/stats/popular-categories
+// @desc    Get popular categories based on recipe count
+// @access  Public
+router.get('/stats/popular-categories', async (req, res) => {
+  try {
+    const categories = await Recipe.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: 4
+      },
+      {
+        $project: {
+          _id: 0,
+          name: '$_id',
+          count: 1
+        }
+      }
+    ]);
+
+    // Map category names to display names
+    const categoryDisplayNames = {
+      breakfast: 'Sarapan',
+      lunch: 'Makan Siang',
+      dinner: 'Makan Malam',
+      snack: 'Camilan'
+    };
+
+    // Map category names to paths
+    const categoryPaths = {
+      breakfast: '/category/breakfast',
+      lunch: '/category/lunch',
+      dinner: '/category/dinner',
+      snack: '/category/snack'
+    };
+
+    // Map category names to default images
+    const categoryImages = {
+      breakfast: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      lunch: 'https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      dinner: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      snack: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+    };
+
+    // Get image for first recipe in each category as sample
+    const categoriesWithImages = await Promise.all(
+      categories.map(async (cat) => {
+        const sampleRecipe = await Recipe.findOne({ category: cat.name })
+          .select('image')
+          .lean();
+        
+        return {
+          name: categoryDisplayNames[cat.name] || cat.name,
+          count: cat.count,
+          path: categoryPaths[cat.name] || `/category/${cat.name}`,
+          image: sampleRecipe?.image || categoryImages[cat.name]
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: { categories: categoriesWithImages }
+    });
+  } catch (error) {
+    console.error('Get popular categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error mengambil kategori populer',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/recipes/:id
 // @desc    Get single recipe
 // @access  Public

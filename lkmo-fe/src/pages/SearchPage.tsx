@@ -1,6 +1,6 @@
 // src/pages/SearchPage.tsx
 
-import { useState, type KeyboardEvent } from 'react' // <-- PERBAIKAN DI SINI
+import { useState, type KeyboardEvent, useEffect } from 'react'
 import {
   SearchIcon,
   FilterIcon,
@@ -9,51 +9,106 @@ import {
   PlusIcon,
 } from 'lucide-react'
 import RecipeCard from '../components/RecipeCard'
+import { recipeAPI } from '../services/api'
 
-// Mock Data Tiruan
-const ALL_MOCK_RECIPES = [
-  {
-    id: '4',
-    title: 'Mac & Cheese Microwave',
-    image:
-      'https://images.unsplash.com/photo-1543339494-b4cd4f7ba686?ixlib-rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.2,
-    prepTime: '12 menit',
-    equipment: ['Microwave'],
-    author: 'Dewi Putri',
-    price: 'Rp 15.000',
-  },
-  {
-    id: '1',
-    title: 'Roti Panggang Telur Keju',
-    image:
-      'https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib-rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.3,
-    prepTime: '10 menit',
-    equipment: ['Microwave'],
-    author: 'Andi Wijaya',
-    price: 'Rp 6.000',
-  },
-]
+interface Recipe {
+  _id: string
+  title: string
+  image: string | null
+  rating: number
+  prepTime: number
+  equipment: string[]
+  author: {
+    name: string
+    image?: string
+  }
+  price: string
+}
+
+// Mapping untuk kategori
+const CATEGORY_MAP: Record<string, string> = {
+  'Sarapan': 'breakfast',
+  'Makan Siang': 'lunch',
+  'Makan Malam': 'dinner',
+  'Camilan': 'snack',
+}
+
+// Mapping untuk harga
+const PRICE_MAP: Record<string, string> = {
+  '< Rp 10.000': 'under-10000',
+  'Rp 10.000 - Rp 25.000': '10000-25000',
+  '> Rp 25.000': 'over-25000',
+}
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [searchedKeyword, setSearchedKeyword] = useState('') // Keyword yang digunakan untuk pencarian terakhir
   const [showFilters, setShowFilters] = useState(true)
-  // State untuk hasil pencarian. `null` berarti pencarian belum dilakukan.
-  const [results, setResults] = useState<any[] | null>(null)
+  const [results, setResults] = useState<Recipe[] | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
+  // State untuk filter radio
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const [selectedPrice, setSelectedPrice] = useState<string>('')
+  const [selectedEquipment, setSelectedEquipment] = useState<string>('')
 
-  // Fungsi untuk menjalankan pencarian
-  const handleSearch = () => {
-    if (searchTerm.trim() === '') {
-      setResults([]) // Jika search kosong, tampilkan 0 hasil
+  // Fungsi untuk menjalankan pencarian dengan filter
+  const handleSearch = async () => {
+    // Jika tidak ada keyword dan tidak ada filter yang dipilih, jangan lakukan pencarian
+    if (searchTerm.trim() === '' && !selectedCategory && !selectedPrice && !selectedEquipment) {
+      setResults(null)
       return
     }
-    
-    // Logika filter sederhana (front-end only)
-    const filteredResults = ALL_MOCK_RECIPES.filter((recipe) =>
-      recipe.title.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    setResults(filteredResults)
+
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Build API parameters
+      const params: {
+        search?: string
+        category?: string
+        priceRange?: string
+        equipment?: string
+        limit?: number
+      } = {
+        limit: 100
+      }
+
+      if (searchTerm.trim()) {
+        params.search = searchTerm.trim()
+      }
+
+      if (selectedCategory) {
+        params.category = CATEGORY_MAP[selectedCategory]
+      }
+
+      if (selectedPrice) {
+        params.priceRange = PRICE_MAP[selectedPrice]
+      }
+
+      if (selectedEquipment) {
+        params.equipment = selectedEquipment
+      }
+
+      const response = await recipeAPI.getAll(params)
+
+      if (response.success && response.data?.recipes) {
+        setResults(response.data.recipes)
+        // Simpan keyword yang digunakan untuk pencarian
+        setSearchedKeyword(searchTerm.trim())
+      } else {
+        setResults([])
+        setSearchedKeyword(searchTerm.trim())
+      }
+    } catch (err: any) {
+      console.error('Error searching recipes:', err)
+      setError(err.response?.data?.message || 'Gagal mencari resep')
+      setResults([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Fungsi untuk menangani penekanan tombol 'Enter'
@@ -63,6 +118,31 @@ export default function SearchPage() {
     }
   }
 
+  // Auto search ketika filter berubah (tanpa keyword)
+  useEffect(() => {
+    // Hanya jalankan jika ada filter yang dipilih tapi tidak ada keyword
+    // Jika ada keyword, biarkan user yang trigger dengan Enter atau button
+    if (!searchTerm.trim() && (selectedCategory || selectedPrice || selectedEquipment)) {
+      handleSearch()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, selectedPrice, selectedEquipment])
+
+  // Reset filter
+  const resetFilters = () => {
+    setSelectedCategory('')
+    setSelectedPrice('')
+    setSelectedEquipment('')
+    setResults(null)
+  }
+
+  const getImageUrl = (image: string | null | undefined) => {
+    if (!image) return 'https://via.placeholder.com/400x300?text=No+Image'
+    if (image.startsWith('http')) return image
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    return `${apiUrl}${image}`
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* 1. Search Bar Utama */}
@@ -70,31 +150,70 @@ export default function SearchPage() {
         <input
           type="text"
           placeholder="Cari Resep, Bahan Makanan, dll"
-          className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          className="w-full pl-12 pr-24 py-4 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={handleKeyDown} // <-- Tambahkan event handler
+          onKeyDown={handleKeyDown}
         />
         <span className="absolute inset-y-0 left-0 flex items-center pl-4">
           <SearchIcon size={24} className="text-gray-400" />
         </span>
+        <button
+          onClick={handleSearch}
+          disabled={loading}
+          className="absolute inset-y-0 right-0 flex items-center px-6 bg-orange-500 text-white font-medium rounded-r-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed"
+        >
+          Cari
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* 2. Kolom Hasil Pencarian (Kiri) */}
         <main className="md:col-span-3">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            {/* Judul dinamis berdasarkan status pencarian */}
-            {results === null
-              ? 'Filter Resep'
-              : `Hasil Pencarian "${searchTerm}"`}
-            {results !== null && ` (${results.length})`}
-          </h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {/* Judul dinamis berdasarkan status pencarian */}
+              {loading
+                ? 'Mencari Resep...'
+                : results === null
+                ? 'Filter Resep'
+                : searchedKeyword
+                ? `Hasil Pencarian "${searchedKeyword}"`
+                : selectedCategory || selectedPrice || selectedEquipment
+                ? 'Hasil Filter'
+                : 'Filter Resep'}
+              {results !== null && !loading && ` (${results.length})`}
+            </h2>
+            {(selectedCategory || selectedPrice || selectedEquipment || searchedKeyword) && (
+              <button
+                onClick={() => {
+                  resetFilters()
+                  setSearchTerm('')
+                  setSearchedKeyword('')
+                }}
+                className="text-sm text-orange-500 hover:text-orange-600"
+              >
+                Reset Filter
+              </button>
+            )}
+          </div>
 
-          {/* === KONDISI RENDER BARU === */}
+          {/* Error message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+
+          {/* Loading state */}
+          {loading && (
+            <div className="text-center py-16 px-6 bg-white rounded-lg shadow-sm">
+              <div className="text-gray-500">Memuat hasil pencarian...</div>
+            </div>
+          )}
 
           {/* State 1: Belum mencari (results === null) */}
-          {results === null && (
+          {!loading && results === null && (
             <div className="text-center py-16 px-6 bg-white rounded-lg shadow-sm">
               <div className="flex justify-center mb-4">
                 <SearchIcon size={48} className="text-gray-300" />
@@ -103,23 +222,32 @@ export default function SearchPage() {
                 Mulai Mencari Resep
               </h3>
               <p className="text-gray-500 max-w-md mx-auto">
-                Ketik di kotak pencarian di atas dan tekan Enter untuk
-                menemukan resep yang Anda inginkan.
+                Ketik di kotak pencarian atau pilih filter untuk menemukan resep yang Anda inginkan.
               </p>
             </div>
           )}
 
           {/* State 2: Ada hasil (results.length > 0) */}
-          {results !== null && results.length > 0 && (
+          {!loading && results !== null && results.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {results.map((recipe) => (
-                <RecipeCard key={recipe.id} {...recipe} />
+                <RecipeCard
+                  key={recipe._id}
+                  id={recipe._id}
+                  title={recipe.title}
+                  image={getImageUrl(recipe.image)}
+                  rating={recipe.rating || 0}
+                  prepTime={`${recipe.prepTime} menit`}
+                  equipment={recipe.equipment || []}
+                  author={recipe.author?.name || 'Unknown'}
+                  price={recipe.price || 'Rp 0'}
+                />
               ))}
             </div>
           )}
 
           {/* State 3: Tidak ada hasil (results.length === 0) */}
-          {results !== null && results.length === 0 && (
+          {!loading && results !== null && results.length === 0 && (
             <div className="text-center py-16 px-6 bg-white rounded-lg shadow-sm">
               <div className="flex justify-center mb-4">
                 <CookingPotIcon size={48} className="text-gray-300" />
@@ -128,8 +256,10 @@ export default function SearchPage() {
                 Hasil Penelusuran Tersebut Tidak Ada
               </h3>
               <p className="text-gray-500 max-w-md mx-auto mb-6">
-                Maaf, kami tidak dapat menemukan resep untuk "{searchTerm}".
-                Coba kata kunci lain atau...
+                {searchedKeyword 
+                  ? `Maaf, kami tidak dapat menemukan resep untuk "${searchedKeyword}".`
+                  : 'Maaf, kami tidak dapat menemukan resep yang sesuai dengan kriteria Anda.'}
+                Coba filter lain atau...
               </p>
               <a
                 href="/upload"
@@ -162,9 +292,9 @@ export default function SearchPage() {
               showFilters ? 'block' : 'hidden'
             } md:block bg-white p-6 rounded-lg shadow-sm space-y-6`}
           >
-            {/* Filter Kategori */}
+            {/* Filter Waktu Makan */}
             <div>
-              <h3 className="font-semibold text-gray-700 mb-3">Kategori</h3>
+              <h3 className="font-semibold text-gray-700 mb-3">Waktu Makan</h3>
               <div className="space-y-2">
                 {[
                   'Sarapan',
@@ -172,14 +302,30 @@ export default function SearchPage() {
                   'Makan Malam',
                   'Camilan',
                 ].map((cat) => (
-                  <label key={cat} className="flex items-center">
+                  <label key={cat} className="flex items-center cursor-pointer">
                     <input
-                      type="checkbox"
-                      className="h-4 w-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                      type="radio"
+                      name="category"
+                      value={cat}
+                      checked={selectedCategory === cat}
+                      onChange={(e) => {
+                        setSelectedCategory(e.target.value)
+                      }}
+                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
                     />
                     <span className="ml-3 text-gray-600">{cat}</span>
                   </label>
                 ))}
+                {selectedCategory && (
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('')
+                    }}
+                    className="text-xs text-orange-500 hover:text-orange-600 mt-1"
+                  >
+                    Hapus filter
+                  </button>
+                )}
               </div>
             </div>
 
@@ -192,14 +338,30 @@ export default function SearchPage() {
                   'Rp 10.000 - Rp 25.000',
                   '> Rp 25.000',
                 ].map((price) => (
-                  <label key={price} className="flex items-center">
+                  <label key={price} className="flex items-center cursor-pointer">
                     <input
-                      type="checkbox"
-                      className="h-4 w-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                      type="radio"
+                      name="price"
+                      value={price}
+                      checked={selectedPrice === price}
+                      onChange={(e) => {
+                        setSelectedPrice(e.target.value)
+                      }}
+                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
                     />
                     <span className="ml-3 text-gray-600">{price}</span>
                   </label>
                 ))}
+                {selectedPrice && (
+                  <button
+                    onClick={() => {
+                      setSelectedPrice('')
+                    }}
+                    className="text-xs text-orange-500 hover:text-orange-600 mt-1"
+                  >
+                    Hapus filter
+                  </button>
+                )}
               </div>
             </div>
 
@@ -207,26 +369,40 @@ export default function SearchPage() {
             <div>
               <h3 className="font-semibold text-gray-700 mb-3">Peralatan</h3>
               <div className="space-y-2">
-                {['Rice Cooker', 'Microwave', 'Kompor', 'Panci Rebus'].map(
-                  (eq) => (
-                    <label key={eq} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-                      />
-                      <span className="ml-3 text-gray-600">{eq}</span>
-                    </label>
-                  ),
+                {[
+                  { label: 'Rice Cooker', value: 'Rice Cooker' },
+                  { label: 'Microwave', value: 'Microwave' },
+                  { label: 'Kompor', value: 'Kompor' },
+                  { label: 'Wajan', value: 'Wajan' },
+                  { label: 'Panci rebus', value: 'Panci rebus' },
+                  { label: 'Lainnya', value: 'other' },
+                ].map((eq) => (
+                  <label key={eq.value} className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="equipment"
+                      value={eq.value}
+                      checked={selectedEquipment === eq.value}
+                      onChange={(e) => {
+                        setSelectedEquipment(e.target.value)
+                      }}
+                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+                    />
+                    <span className="ml-3 text-gray-600">{eq.label}</span>
+                  </label>
+                ))}
+                {selectedEquipment && (
+                  <button
+                    onClick={() => {
+                      setSelectedEquipment('')
+                    }}
+                    className="text-xs text-orange-500 hover:text-orange-600 mt-1"
+                  >
+                    Hapus filter
+                  </button>
                 )}
               </div>
             </div>
-
-            <button
-              onClick={handleSearch}
-              className="w-full py-2 px-4 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 transition-colors"
-            >
-              Terapkan Filter
-            </button>
           </div>
         </aside>
       </div>
