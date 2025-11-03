@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
+import { recipeAPI } from '../services/api'
 
 const CATEGORY_TYPES = {
   breakfast: {
@@ -32,142 +34,79 @@ const CATEGORY_TYPES = {
   },
 }
 
-const BREAKFAST_RECIPES = [
-  {
-    id: '1',
-    title: 'Roti Panggang Telur Keju',
-    image:
-      'https://images.unsplash.com/photo-1525351484163-7529414344d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.3,
-    prepTime: '10 menit',
-    equipment: ['Microwave'],
-    author: 'Andi Wijaya',
-    price: 'Rp 6.000',
-  },
-  {
-    id: '2',
-    title: 'Overnight Oats',
-    image:
-      'https://images.unsplash.com/photo-1502373737927-465e630374e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.5,
-    prepTime: '5 menit + semalaman',
-    equipment: ['No Cook'],
-    author: 'Siti Aminah',
-    price: 'Rp 10.000',
-  },
-  {
-    id: '3',
-    title: 'Smoothie Pisang',
-    image:
-      'https://images.unsplash.com/photo-1553530666-ba11a90bb437?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.7,
-    prepTime: '5 menit',
-    equipment: ['Blender'],
-    author: 'Dewi Putri',
-    price: 'Rp 7.000',
-  },
-]
-
-const LUNCH_RECIPES = [
-  {
-    id: '1',
-    title: 'Nasi Goreng Rice Cooker',
-    image:
-      'https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.5,
-    prepTime: '20 menit',
-    equipment: ['Rice Cooker'],
-    author: 'Siti Aminah',
-    price: 'Rp 12.000',
-  },
-  {
-    id: '2',
-    title: 'Pasta Aglio e Olio Simple',
-    image:
-      'https://images.unsplash.com/photo-1556761223-4c4282c73f77?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.8,
-    prepTime: '25 menit',
-    equipment: ['Kompor Portable'],
-    author: 'Siti Aminah',
-    price: 'Rp 18.000',
-  },
-]
-
-const DINNER_RECIPES = [
-  {
-    id: '1',
-    title: 'Sup Ayam Rice Cooker',
-    image:
-      'https://images.unsplash.com/photo-1547592166-23ac45744acd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.3,
-    prepTime: '30 menit',
-    equipment: ['Rice Cooker'],
-    author: 'Budi Santoso',
-    price: 'Rp 20.000',
-  },
-  {
-    id: '2',
-    title: 'Telur Dadar Mie Instan',
-    image:
-      'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.7,
-    prepTime: '15 menit',
-    equipment: ['Kompor Portable'],
-    author: 'Budi Santoso',
-    price: 'Rp 8.000',
-  },
-]
-
-const SNACK_RECIPES = [
-  {
-    id: '1',
-    title: 'Cake Coklat Rice Cooker',
-    image:
-      'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.7,
-    prepTime: '45 menit',
-    equipment: ['Rice Cooker'],
-    author: 'Dewi Putri',
-    price: 'Rp 25.000',
-  },
-  {
-    id: '2',
-    title: 'Sandwich Tuna Mayo',
-    image:
-      'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    rating: 4.6,
-    prepTime: '10 menit',
-    equipment: ['No Cook'],
-    author: 'Andi Wijaya',
-    price: 'Rp 9.000',
-  },
-]
-
-const getRecipesByCategory = (type: string | undefined) => {
-  switch (type) {
-    case 'breakfast':
-      return BREAKFAST_RECIPES
-    case 'lunch':
-      return LUNCH_RECIPES
-    case 'dinner':
-      return DINNER_RECIPES
-    case 'snack':
-      return SNACK_RECIPES
-    default:
-      return []
+interface Recipe {
+  _id: string
+  id?: string
+  title: string
+  image?: string | null
+  rating: number
+  prepTime: number
+  equipment: string[]
+  author: {
+    name: string
+    image?: string
   }
+  price?: string
 }
 
 export default function CategoryPage() {
   const { type } = useParams()
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (type) {
+      loadRecipes()
+    }
+  }, [type])
+
+  const loadRecipes = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await recipeAPI.getAll({
+        category: type as string,
+        limit: 50
+      })
+      
+      if (response.success && response.data?.recipes) {
+        setRecipes(response.data.recipes)
+      } else {
+        setError('Gagal memuat resep')
+      }
+    } catch (err: any) {
+      console.error('Error loading recipes:', err)
+      setError(err.response?.data?.message || 'Gagal memuat resep')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const category = CATEGORY_TYPES[type as keyof typeof CATEGORY_TYPES] || {
     name: 'Kategori',
     description: 'Resep berdasarkan kategori',
     image:
       'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80',
   }
-  const recipes = getRecipesByCategory(type)
-  
+
+  const getImageUrl = (image: string | null | undefined) => {
+    if (!image) return 'https://via.placeholder.com/400x300?text=No+Image'
+    if (image.startsWith('http')) return image
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    return `${apiUrl}${image}`
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center py-12">
+          <div className="text-gray-500">Memuat resep...</div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -196,19 +135,25 @@ export default function CategoryPage() {
           <h2 className="text-2xl font-bold text-gray-800">
             Semua Resep ({recipes.length})
           </h2>
-          <div>
-            <select className="p-2 border border-gray-300 rounded-md text-gray-700 text-sm focus:ring-orange-500 focus:border-orange-500">
-              <option value="newest">Terbaru</option>
-              <option value="popular">Terpopuler</option>
-              <option value="rating">Rating Tertinggi</option>
-              <option value="time">Waktu Tercepat</option>
-            </select>
-          </div>
         </div>
-        {recipes.length > 0 ? (
+        {error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : recipes.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {recipes.map((recipe) => (
-              <RecipeCard key={recipe.id} {...recipe} />
+              <RecipeCard
+                key={recipe._id || recipe.id}
+                id={recipe._id || recipe.id || ''}
+                title={recipe.title}
+                image={getImageUrl(recipe.image)}
+                rating={recipe.rating || 0}
+                prepTime={`${recipe.prepTime} menit`}
+                equipment={recipe.equipment || []}
+                author={recipe.author?.name || 'Unknown'}
+                price={recipe.price || ''}
+              />
             ))}
           </div>
         ) : (

@@ -15,7 +15,8 @@ export default function UploadRecipePage() {
     title: '',
     category: '',
     prepTime: '',
-    price: '',
+    priceValue: '', // Harga utama (wajib)
+    priceThousands: '', // Ribuan (opsional)
     image: null as File | null,
     equipment: [] as string[],
     otherEquipment: '',
@@ -129,7 +130,22 @@ export default function UploadRecipePage() {
       submitData.append('title', formData.title)
       submitData.append('category', formData.category)
       submitData.append('prepTime', formData.prepTime)
-      submitData.append('price', formData.price || '')
+      
+      // Combine price value and thousands
+      let priceFormatted = '';
+      if (formData.priceValue.trim()) {
+        const value = formData.priceValue.trim();
+        const thousands = formData.priceThousands.trim();
+        // Format: Rp 15.000 or Rp 15
+        if (thousands) {
+          // Pad thousands to 3 digits if less than 3
+          const paddedThousands = thousands.padEnd(3, '0').slice(0, 3);
+          priceFormatted = `Rp ${value}.${paddedThousands}`;
+        } else {
+          priceFormatted = `Rp ${value}`;
+        }
+      }
+      submitData.append('price', priceFormatted)
       submitData.append('ingredients', JSON.stringify(filteredIngredients))
       submitData.append('steps', JSON.stringify(filteredSteps))
       
@@ -141,8 +157,18 @@ export default function UploadRecipePage() {
         submitData.append('image', formData.image)
       }
 
-      await recipeAPI.create(submitData)
-      navigate('/profile')
+      const response = await recipeAPI.create(submitData)
+      
+      // Get recipe ID from response and redirect to recipe detail page
+      const recipeId = response?.data?.recipe?._id || response?.data?.recipe?.id
+      
+      if (recipeId) {
+        navigate(`/recipe/${recipeId}`)
+      } else {
+        // Fallback to profile if ID not found (shouldn't happen, but just in case)
+        console.error('Recipe ID not found in response:', response)
+        navigate('/profile')
+      }
     } catch (err: any) {
       setError(err.message || 'Gagal membuat resep. Silakan coba lagi.')
     } finally {
@@ -233,20 +259,49 @@ export default function UploadRecipePage() {
               </div>
             </div>
             <div className="col-span-2">
-              <label
-                htmlFor="price"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Perkiraan Harga
               </label>
-              <input
-                type="text"
-                id="price"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                placeholder="Contoh: Rp 15.000"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
-              />
+              <div className="flex items-center gap-2">
+                <div className="flex items-center">
+                  <span className="px-3 py-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-gray-500">
+                    Rp
+                  </span>
+                  <input
+                    type="number"
+                    id="priceValue"
+                    value={formData.priceValue}
+                    onChange={(e) => {
+                      // Only allow numbers
+                      const value = e.target.value.replace(/[^\d]/g, '');
+                      setFormData({ ...formData, priceValue: value });
+                    }}
+                    placeholder="15"
+                    min="0"
+                    className="w-24 p-3 border border-gray-300 rounded-r-md focus:ring-orange-500 focus:border-orange-500"
+                  />
+                </div>
+                <span className="text-gray-500">.</span>
+                <input
+                  type="text"
+                  id="priceThousands"
+                  value={formData.priceThousands}
+                  onChange={(e) => {
+                    // Only allow numbers, max 3 digits
+                    const value = e.target.value.replace(/[^\d]/g, '').slice(0, 3);
+                    setFormData({ ...formData, priceThousands: value });
+                  }}
+                  placeholder="000"
+                  maxLength={3}
+                  className="w-24 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                />
+                <span className="text-sm text-gray-500">
+                  (ribuan - opsional)
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Contoh: 15 dan 000 = Rp 15.000, atau hanya 15 = Rp 15
+              </p>
             </div>
           </div>
         </div>
@@ -294,11 +349,9 @@ export default function UploadRecipePage() {
               {[
                 'Rice Cooker',
                 'Microwave',
-                'Kompor Portable',
+                'Kompor',
                 'Wajan',
-                'Panci',
-                'Oven',
-                'Blender',
+                'Panci rebus',
               ].map((item) => (
                 <label
                   key={item}

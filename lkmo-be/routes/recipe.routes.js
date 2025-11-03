@@ -1,6 +1,7 @@
 import express from 'express';
 import { body, validationResult, query } from 'express-validator';
 import Recipe from '../models/Recipe.model.js';
+import Review from '../models/Review.model.js';
 import { authenticate, optionalAuth } from '../middleware/auth.middleware.js';
 import { uploadSingle } from '../middleware/upload.middleware.js';
 
@@ -12,6 +13,8 @@ const router = express.Router();
 router.get('/', [
   query('category').optional().isIn(['breakfast', 'lunch', 'dinner', 'snack']),
   query('search').optional().trim(),
+  query('equipment').optional().trim(),
+  query('priceRange').optional().trim(),
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 50 })
 ], optionalAuth, async (req, res) => {
@@ -19,6 +22,8 @@ router.get('/', [
     const {
       category,
       search,
+      equipment,
+      priceRange,
       page = 1,
       limit = 12,
       author,
@@ -36,14 +41,64 @@ router.get('/', [
       query.$text = { $search: search };
     }
 
+    // Equipment filter - we'll filter in memory for better accuracy
+    // This allows recipes with multiple equipment to appear in multiple menus
+    // We fetch all recipes first, then filter in-memory to ensure accuracy
+    let equipmentFilter = null;
+    if (equipment) {
+      if (equipment === 'other') {
+        // Filter recipes with equipment that is NOT in the main equipment list
+        equipmentFilter = 'other';
+      } else {
+        // Filter recipes that contain the specified equipment
+        equipmentFilter = equipment.trim();
+      }
+      // Don't add MongoDB query filter - we'll filter in memory for 100% accuracy
+    }
+
     if (author) {
       query.author = author;
     }
-
-    // Pagination
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-    const skip = (pageNum - 1) * limitNum;
+    
+    // Price range filter
+    // priceRange format: "under-10000", "10000-25000", "over-25000"
+    // Helper function to extract price number from string
+    const extractPriceNumber = (priceStr) => {
+      if (!priceStr || priceStr.trim() === '') return 0;
+      // Remove "Rp", spaces, dots, commas, and extract all numbers
+      const numbers = priceStr.replace(/Rp\s*/gi, '').replace(/[^\d]/g, '');
+      const num = parseInt(numbers) || 0;
+      
+      // Handle "rb", "ribu", "k" suffix (multiply by 1000)
+      if (priceStr.toLowerCase().match(/\d+\s*(rb|ribu|k)/i)) {
+        const baseNum = parseInt(priceStr.match(/\d+/)?.[0] || '0') || 0;
+        return baseNum * 1000;
+      }
+      
+      return num;
+    };
+    
+    // Note: Price filtering will be done after query for better accuracy
+    // since price is stored as string with various formats
+    let priceRangeFilter = null;
+    if (priceRange) {
+      if (priceRange === 'under-10000') {
+        priceRangeFilter = (priceStr) => {
+          const num = extractPriceNumber(priceStr);
+          return num > 0 && num < 10000;
+        };
+      } else if (priceRange === '10000-25000') {
+        priceRangeFilter = (priceStr) => {
+          const num = extractPriceNumber(priceStr);
+          return num >= 10000 && num <= 25000;
+        };
+      } else if (priceRange === 'over-25000') {
+        priceRangeFilter = (priceStr) => {
+          const num = extractPriceNumber(priceStr);
+          return num > 25000;
+        };
+      }
+    }
 
     // Build sort
     let sortObj = { createdAt: -1 };
@@ -54,15 +109,57 @@ router.get('/', [
     }
 
     // Execute query
-    const recipes = await Recipe.find(query)
+    // If we have equipment filter, we'll filter in-memory, so fetch more recipes
+    const queryLimit = equipmentFilter ? 1000 : undefined;
+    let recipes = await Recipe.find(query)
       .populate('author', 'name image')
       .sort(sortObj)
-      .skip(skip)
-      .limit(limitNum)
+      .limit(queryLimit || 1000) // Increase limit when filtering equipment in-memory
       .lean();
 
-    // Get total count
-    const total = await Recipe.countDocuments(query);
+    // Apply equipment filter in-memory for accuracy
+    // This ensures recipes with multiple equipment appear in all relevant menus
+    if (equipmentFilter) {
+      if (equipmentFilter === 'other') {
+        // Filter recipes with equipment that is NOT in the main equipment list
+        const mainEquipment = ['Rice Cooker', 'Microwave', 'Kompor', 'Wajan', 'Panci rebus'];
+        recipes = recipes.filter(recipe => {
+          // Recipe must have equipment array with at least one item
+          if (!recipe.equipment || !Array.isArray(recipe.equipment) || recipe.equipment.length === 0) {
+            return false;
+          }
+          // Recipe must have at least one equipment that is NOT in mainEquipment
+          return recipe.equipment.some(eq => !mainEquipment.includes(eq));
+        });
+      } else {
+        // Filter recipes that contain the specified equipment (exact match)
+        // Normalize by trimming spaces for comparison
+        const filterValue = equipmentFilter.trim();
+        recipes = recipes.filter(recipe => {
+          if (!recipe.equipment || !Array.isArray(recipe.equipment)) {
+            return false;
+          }
+          // Check if equipment array contains the filter value (case-sensitive, exact match)
+          return recipe.equipment.some(eq => eq && eq.trim() === filterValue);
+        });
+      }
+    }
+
+    // Apply price filter if specified (in-memory filtering for accuracy)
+    if (priceRangeFilter) {
+      recipes = recipes.filter(recipe => {
+        return recipe.price && priceRangeFilter(recipe.price);
+      });
+    }
+
+    // Get total count (after filters if applied)
+    const total = (priceRangeFilter || equipmentFilter) ? recipes.length : await Recipe.countDocuments(query);
+
+    // Apply pagination after filtering
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+    recipes = recipes.slice(skip, skip + limitNum);
 
     // Check if user saved the recipe
     if (req.user) {
@@ -109,14 +206,26 @@ router.get('/:id', optionalAuth, async (req, res) => {
       });
     }
 
+    // Get reviews with user info
+    const reviews = await Review.find({ recipe: req.params.id })
+      .populate('user', 'name image')
+      .sort({ createdAt: -1 })
+      .lean();
+
     // Check if user saved the recipe
     if (req.user) {
       recipe.isSaved = recipe.savedBy?.some(id => id.toString() === req.user._id.toString()) || false;
+      // Check if user has reviewed this recipe
+      const userReview = reviews.find(r => r.user._id.toString() === req.user._id.toString());
+      recipe.userReview = userReview || null;
     }
 
     res.json({
       success: true,
-      data: { recipe }
+      data: { 
+        recipe,
+        reviews 
+      }
     });
   } catch (error) {
     console.error('Get recipe error:', error);
@@ -137,7 +246,34 @@ router.get('/:id', optionalAuth, async (req, res) => {
 // @route   POST /api/recipes
 // @desc    Create new recipe
 // @access  Private
-router.post('/', authenticate, uploadSingle, [
+router.post('/', authenticate, (req, res, next) => {
+  // Handle multer errors
+  uploadSingle(req, res, (err) => {
+    if (err) {
+      if (err.name === 'MulterError') {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            success: false,
+            message: 'Ukuran file terlalu besar. Maksimal 5MB'
+          });
+        }
+        return res.status(400).json({
+          success: false,
+          message: err.message || 'Error saat upload file'
+        });
+      }
+      // File filter error
+      if (err.message) {
+        return res.status(400).json({
+          success: false,
+          message: err.message
+        });
+      }
+      return next(err);
+    }
+    next();
+  });
+}, [
   body('title')
     .trim()
     .notEmpty().withMessage('Judul harus diisi')
@@ -147,9 +283,25 @@ router.post('/', authenticate, uploadSingle, [
   body('prepTime')
     .isInt({ min: 1 }).withMessage('Waktu persiapan harus angka positif'),
   body('ingredients')
-    .isArray({ min: 1 }).withMessage('Minimal 1 bahan diperlukan'),
+    .custom((value) => {
+      if (!value) return false;
+      try {
+        const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+        return Array.isArray(parsed) && parsed.length > 0;
+      } catch {
+        return false;
+      }
+    }).withMessage('Minimal 1 bahan diperlukan'),
   body('steps')
-    .isArray({ min: 1 }).withMessage('Minimal 1 langkah diperlukan')
+    .custom((value) => {
+      if (!value) return false;
+      try {
+        const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+        return Array.isArray(parsed) && parsed.length > 0;
+      } catch {
+        return false;
+      }
+    }).withMessage('Minimal 1 langkah diperlukan')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -159,6 +311,16 @@ router.post('/', authenticate, uploadSingle, [
         const fs = await import('fs');
         fs.unlinkSync(req.file.path);
       }
+      // Log validation errors for debugging
+      console.error('Validation errors:', errors.array());
+      console.error('Request body:', {
+        title: req.body.title,
+        category: req.body.category,
+        prepTime: req.body.prepTime,
+        equipment: req.body.equipment,
+        ingredients: req.body.ingredients ? 'present' : 'missing',
+        steps: req.body.steps ? 'present' : 'missing',
+      });
       return res.status(400).json({
         success: false,
         message: 'Validasi gagal',
@@ -176,21 +338,109 @@ router.post('/', authenticate, uploadSingle, [
       price = ''
     } = req.body;
 
-    // Parse equipment if it's a string
-    let equipmentArray = equipment;
-    if (typeof equipment === 'string') {
-      equipmentArray = equipment.split(',').map(e => e.trim()).filter(e => e);
-    } else if (!Array.isArray(equipment)) {
+    // Log for debugging
+    console.log('Creating recipe with:', {
+      title,
+      category,
+      prepTime,
+      equipmentType: typeof equipment,
+      equipment,
+      hasIngredients: !!ingredients,
+      hasSteps: !!steps
+    });
+
+    // Parse equipment - handle both JSON string and array
+    let equipmentArray = [];
+    try {
+      if (!equipment || equipment === '' || equipment === '[]') {
+        // Empty equipment is allowed
+        equipmentArray = [];
+      } else if (Array.isArray(equipment)) {
+        equipmentArray = equipment;
+      } else if (typeof equipment === 'string') {
+        // Try to parse as JSON first
+        try {
+          const parsed = JSON.parse(equipment);
+          if (Array.isArray(parsed)) {
+            equipmentArray = parsed;
+          } else {
+            // If not array after parsing, treat as comma-separated string
+            equipmentArray = equipment.split(',').map(e => e.trim()).filter(e => e);
+          }
+        } catch {
+          // If JSON parse fails, treat as comma-separated string
+          equipmentArray = equipment.split(',').map(e => e.trim()).filter(e => e);
+        }
+      }
+      // Normalize equipment array: trim each item and remove duplicates
+      if (Array.isArray(equipmentArray)) {
+        equipmentArray = equipmentArray.map(e => String(e).trim()).filter(e => e.length > 0);
+        // Remove duplicates while preserving order
+        equipmentArray = [...new Set(equipmentArray)];
+      } else {
+        equipmentArray = [];
+      }
+    } catch (err) {
+      console.error('Error parsing equipment:', err);
       equipmentArray = [];
     }
 
     // Parse ingredients and steps if they're strings
-    const ingredientsArray = Array.isArray(ingredients) 
-      ? ingredients 
-      : JSON.parse(ingredients || '[]');
-    const stepsArray = Array.isArray(steps) 
-      ? steps 
-      : JSON.parse(steps || '[]');
+    let ingredientsArray;
+    let stepsArray;
+    
+    try {
+      ingredientsArray = Array.isArray(ingredients) 
+        ? ingredients 
+        : JSON.parse(ingredients || '[]');
+    } catch (err) {
+      if (req.file) {
+        const fs = await import('fs');
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Format ingredients tidak valid. Harus berupa array JSON'
+      });
+    }
+    
+    try {
+      stepsArray = Array.isArray(steps) 
+        ? steps 
+        : JSON.parse(steps || '[]');
+    } catch (err) {
+      if (req.file) {
+        const fs = await import('fs');
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Format steps tidak valid. Harus berupa array JSON'
+      });
+    }
+    
+    // Validate arrays are not empty
+    if (!ingredientsArray || ingredientsArray.length === 0) {
+      if (req.file) {
+        const fs = await import('fs');
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Minimal 1 bahan diperlukan'
+      });
+    }
+    
+    if (!stepsArray || stepsArray.length === 0) {
+      if (req.file) {
+        const fs = await import('fs');
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Minimal 1 langkah diperlukan'
+      });
+    }
 
     // Create recipe
     const recipe = await Recipe.create({
@@ -217,13 +467,27 @@ router.post('/', authenticate, uploadSingle, [
     // Delete uploaded file if error occurs
     if (req.file) {
       const fs = await import('fs');
-      fs.unlinkSync(req.file.path);
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkErr) {
+        console.error('Error deleting uploaded file:', unlinkErr);
+      }
     }
     console.error('Create recipe error:', error);
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validasi gagal',
+        error: Object.values(error.errors).map(e => e.message).join(', ')
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Error membuat resep',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Terjadi kesalahan pada server'
     });
   }
 });
@@ -231,7 +495,34 @@ router.post('/', authenticate, uploadSingle, [
 // @route   PUT /api/recipes/:id
 // @desc    Update recipe
 // @access  Private (Owner only)
-router.put('/:id', authenticate, uploadSingle, [
+router.put('/:id', authenticate, (req, res, next) => {
+  // Handle multer errors
+  uploadSingle(req, res, (err) => {
+    if (err) {
+      if (err.name === 'MulterError') {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            success: false,
+            message: 'Ukuran file terlalu besar. Maksimal 5MB'
+          });
+        }
+        return res.status(400).json({
+          success: false,
+          message: err.message || 'Error saat upload file'
+        });
+      }
+      // File filter error
+      if (err.message) {
+        return res.status(400).json({
+          success: false,
+          message: err.message
+        });
+      }
+      return next(err);
+    }
+    next();
+  });
+}, [
   body('title').optional().trim().isLength({ max: 200 }),
   body('category').optional().isIn(['breakfast', 'lunch', 'dinner', 'snack']),
   body('prepTime').optional().isInt({ min: 1 })
@@ -286,14 +577,36 @@ router.put('/:id', authenticate, uploadSingle, [
         : req.body.equipment.split(',').map(e => e.trim()).filter(e => e);
     }
     if (req.body.ingredients !== undefined) {
-      updateFields.ingredients = Array.isArray(req.body.ingredients)
-        ? req.body.ingredients
-        : JSON.parse(req.body.ingredients || '[]');
+      try {
+        updateFields.ingredients = Array.isArray(req.body.ingredients)
+          ? req.body.ingredients
+          : JSON.parse(req.body.ingredients || '[]');
+      } catch (err) {
+        if (req.file) {
+          const fs = await import('fs');
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(400).json({
+          success: false,
+          message: 'Format ingredients tidak valid. Harus berupa array JSON'
+        });
+      }
     }
     if (req.body.steps !== undefined) {
-      updateFields.steps = Array.isArray(req.body.steps)
-        ? req.body.steps
-        : JSON.parse(req.body.steps || '[]');
+      try {
+        updateFields.steps = Array.isArray(req.body.steps)
+          ? req.body.steps
+          : JSON.parse(req.body.steps || '[]');
+      } catch (err) {
+        if (req.file) {
+          const fs = await import('fs');
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(400).json({
+          success: false,
+          message: 'Format steps tidak valid. Harus berupa array JSON'
+        });
+      }
     }
     if (req.body.price !== undefined) updateFields.price = req.body.price;
     if (req.file) {
@@ -325,13 +638,27 @@ router.put('/:id', authenticate, uploadSingle, [
   } catch (error) {
     if (req.file) {
       const fs = await import('fs');
-      fs.unlinkSync(req.file.path);
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkErr) {
+        console.error('Error deleting uploaded file:', unlinkErr);
+      }
     }
     console.error('Update recipe error:', error);
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validasi gagal',
+        error: Object.values(error.errors).map(e => e.message).join(', ')
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Error mengupdate resep',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Terjadi kesalahan pada server'
     });
   }
 });
@@ -426,6 +753,95 @@ router.post('/:id/save', authenticate, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error menyimpan resep',
+      error: error.message
+    });
+  }
+});
+
+// @route   POST /api/recipes/:id/reviews
+// @desc    Add review (rating + comment) to recipe
+// @access  Private
+router.post('/:id/reviews', authenticate, [
+  body('rating')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating harus antara 1-5'),
+  body('comment')
+    .trim()
+    .notEmpty()
+    .withMessage('Komentar harus diisi')
+    .isLength({ min: 1, max: 500 })
+    .withMessage('Komentar maksimal 500 karakter')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validasi gagal',
+        errors: errors.array()
+      });
+    }
+
+    const recipe = await Recipe.findById(req.params.id);
+
+    if (!recipe) {
+      return res.status(404).json({
+        success: false,
+        message: 'Resep tidak ditemukan'
+      });
+    }
+
+    // Check if user already reviewed this recipe
+    const existingReview = await Review.findOne({
+      recipe: req.params.id,
+      user: req.user._id
+    });
+
+    if (existingReview) {
+      // Update existing review
+      existingReview.rating = parseInt(req.body.rating);
+      existingReview.comment = req.body.comment;
+      await existingReview.save();
+    } else {
+      // Create new review
+      await Review.create({
+        recipe: req.params.id,
+        user: req.user._id,
+        rating: parseInt(req.body.rating),
+        comment: req.body.comment
+      });
+    }
+
+    // Recalculate recipe rating
+    const reviews = await Review.find({ recipe: req.params.id });
+    const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    
+    recipe.rating = Math.round(avgRating * 10) / 10; // Round to 1 decimal
+    recipe.ratingsCount = reviews.length;
+    await recipe.save();
+
+    // Get updated review with user info
+    const review = await Review.findOne({
+      recipe: req.params.id,
+      user: req.user._id
+    }).populate('user', 'name image');
+
+    res.status(existingReview ? 200 : 201).json({
+      success: true,
+      message: existingReview ? 'Ulasan berhasil diupdate' : 'Ulasan berhasil ditambahkan',
+      data: { review }
+    });
+  } catch (error) {
+    console.error('Add review error:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Anda sudah memberikan ulasan untuk resep ini'
+      });
+    }
+    res.status(500).json({
+      success: false,
+      message: 'Error menambahkan ulasan',
       error: error.message
     });
   }

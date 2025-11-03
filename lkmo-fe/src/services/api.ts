@@ -61,6 +61,8 @@ export const recipeAPI = {
   getAll: async (params?: {
     category?: string;
     search?: string;
+    equipment?: string;
+    priceRange?: string;
     page?: number;
     limit?: number;
     author?: string;
@@ -100,6 +102,11 @@ export const recipeAPI = {
   
   save: async (id: string) => {
     const response = await api.post(`/recipes/${id}/save`);
+    return response.data;
+  },
+  
+  addReview: async (id: string, data: { rating: number; comment: string }) => {
+    const response = await api.post(`/recipes/${id}/reviews`, data);
     return response.data;
   },
 };

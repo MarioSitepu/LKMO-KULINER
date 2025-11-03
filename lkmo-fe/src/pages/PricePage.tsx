@@ -3,57 +3,27 @@ import { useParams } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import { recipeAPI } from '../services/api'
 
-const EQUIPMENT_TYPES = {
-  'rice-cooker': {
-    name: 'Rice Cooker',
-    description:
-      'Resep yang bisa dibuat hanya dengan rice cooker, cocok untuk anak kos yang tidak punya akses ke dapur.',
-    image:
-      'https://images.unsplash.com/photo-1596797038530-2c107229654b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    filterValue: 'Rice Cooker',
-  },
-  microwave: {
-    name: 'Microwave',
-    description: 'Resep cepat dan praktis yang bisa dibuat dengan microwave.',
-    image:
-      'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    filterValue: 'Microwave',
-  },
-  kompor: {
-    name: 'Kompor',
-    description: 'Resep yang bisa dibuat dengan kompor sederhana.',
-    image:
-      'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    filterValue: 'Kompor',
-  },
-  wajan: {
-    name: 'Wajan',
-    description: 'Resep yang bisa dibuat dengan wajan, cocok untuk menggoreng dan menumis.',
-    image:
-      'https://images.unsplash.com/photo-1556912173-7e0f1dbe6f1e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    filterValue: 'Wajan',
-  },
-  'panci-rebus': {
-    name: 'Panci rebus',
-    description: 'Resep yang bisa dibuat dengan panci rebus, cocok untuk merebus dan memasak bahan.',
-    image:
-      'https://images.unsplash.com/photo-1587486514583-2a017c5c9e5c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    filterValue: 'Panci rebus',
-  },
-  lainnya: {
-    name: 'Peralatan Lainnya',
-    description: 'Resep yang menggunakan peralatan lainnya selain peralatan utama.',
+const PRICE_TYPES = {
+  'under-10000': {
+    name: 'Dibawah Rp 10.000',
+    description: 'Resep ekonomis dengan budget terbatas, cocok untuk anak kos.',
     image:
       'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    filterValue: 'other',
+    filterValue: 'under-10000',
   },
-  // Keep backward compatibility
-  'portable-stove': {
-    name: 'Kompor',
-    description: 'Resep yang bisa dibuat dengan kompor portable sederhana.',
+  '10000-25000': {
+    name: 'Rp 10.000 - Rp 25.000',
+    description: 'Resep dengan harga menengah, seimbang antara kualitas dan harga.',
     image:
-      'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    filterValue: 'Kompor',
+      'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    filterValue: '10000-25000',
+  },
+  'over-25000': {
+    name: 'Diatas Rp 25.000',
+    description: 'Resep dengan bahan berkualitas tinggi dan lebih lengkap.',
+    image:
+      'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    filterValue: 'over-25000',
   },
 }
 
@@ -72,7 +42,7 @@ interface Recipe {
   price?: string
 }
 
-export default function EquipmentPage() {
+export default function PricePage() {
   const { type } = useParams()
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
@@ -89,15 +59,15 @@ export default function EquipmentPage() {
       setLoading(true)
       setError(null)
       
-      const equipmentInfo = EQUIPMENT_TYPES[type as keyof typeof EQUIPMENT_TYPES]
-      if (!equipmentInfo) {
-        setError('Peralatan tidak ditemukan')
+      const priceInfo = PRICE_TYPES[type as keyof typeof PRICE_TYPES]
+      if (!priceInfo) {
+        setError('Kategori harga tidak ditemukan')
         return
       }
 
       const response = await recipeAPI.getAll({
-        equipment: equipmentInfo.filterValue,
-        limit: 100 // Increase limit for "other" filter since we filter in-memory
+        priceRange: priceInfo.filterValue,
+        limit: 50
       })
       
       if (response.success && response.data?.recipes) {
@@ -113,9 +83,9 @@ export default function EquipmentPage() {
     }
   }
 
-  const equipment = EQUIPMENT_TYPES[type as keyof typeof EQUIPMENT_TYPES] || {
-    name: 'Peralatan',
-    description: 'Resep berdasarkan peralatan',
+  const priceInfo = PRICE_TYPES[type as keyof typeof PRICE_TYPES] || {
+    name: 'Harga',
+    description: 'Resep berdasarkan harga',
     image:
       'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80',
     filterValue: '',
@@ -144,18 +114,18 @@ export default function EquipmentPage() {
       <section className="relative rounded-xl overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src={equipment.image}
-            alt={equipment.name}
+            src={priceInfo.image}
+            alt={priceInfo.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20"></div>
         </div>
         <div className="relative px-6 py-12 md:py-16 md:px-12">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Resep dengan {equipment.name}
+            Resep {priceInfo.name}
           </h1>
           <p className="text-white/90 text-lg max-w-xl">
-            {equipment.description}
+            {priceInfo.description}
           </p>
         </div>
       </section>
@@ -190,7 +160,7 @@ export default function EquipmentPage() {
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-500">
-              Belum ada resep untuk peralatan ini.
+              Belum ada resep untuk range harga ini.
             </p>
             <a
               href="/upload"
@@ -204,3 +174,4 @@ export default function EquipmentPage() {
     </div>
   )
 }
+

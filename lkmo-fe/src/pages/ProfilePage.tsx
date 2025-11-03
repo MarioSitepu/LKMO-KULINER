@@ -74,8 +74,6 @@ export default function ProfilePage() {
   const profile = profileData?.user || user
   const stats = profileData?.stats || {
     recipesCount: 0,
-    followersCount: 0,
-    followingCount: 0,
   }
 
   const formatDate = (dateString: string) => {
@@ -143,18 +141,6 @@ export default function ProfilePage() {
                 {stats.recipesCount || 0}
               </span>{' '}
               Resep
-            </div>
-            <div className="flex items-center text-gray-600">
-              <span className="font-medium text-gray-900 mr-1">
-                {stats.followersCount || 0}
-              </span>{' '}
-              Pengikut
-            </div>
-            <div className="flex items-center text-gray-600">
-              <span className="font-medium text-gray-900 mr-1">
-                {stats.followingCount || 0}
-              </span>{' '}
-              Mengikuti
             </div>
           </div>
         </div>

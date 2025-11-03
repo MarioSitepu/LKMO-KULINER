@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import EquipmentPage from './pages/EquipmentPage'
 import CategoryPage from './pages/CategoryPage'
+import PricePage from './pages/PricePage'
 import SearchPage from './pages/SearchPage' // <-- 1. IMPORT HALAMAN BARU
 import EditProfilePage from './pages/EditProfilePage'
 
@@ -26,6 +27,7 @@ function App() {
         <Route path="edit-profile" element={<EditProfilePage />} />
         <Route path="equipment/:type" element={<EquipmentPage />} />
         <Route path="category/:type" element={<CategoryPage />} />
+        <Route path="price/:type" element={<PricePage />} />
         <Route path="search" element={<SearchPage />} /> {/* <-- 2. TAMBAHKAN RUTE BARU */}
         </Route>
       </Routes>

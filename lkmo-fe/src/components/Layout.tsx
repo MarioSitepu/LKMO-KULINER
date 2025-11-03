@@ -177,29 +177,29 @@ export default function Layout() {
                 >
                   <li>
                     <Link
-                      to="/category/10.000"
+                      to="/price/under-10000"
                       className={`flex items-center px-4 py-2 rounded-md ${isActive(
-                        '/category/10.000',
+                        '/price/under-10000',
                       )}`}
                     >
-                      <span className="ml-6">Dibawah Rp10.000</span>
+                      <span className="ml-6">Dibawah Rp 10.000</span>
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/category/10.000-25.000"
+                      to="/price/10000-25000"
                       className={`flex items-center px-4 py-2 rounded-md ${isActive(
-                        '/10.000-25.000',
+                        '/price/10000-25000',
                       )}`}
                     >
-                      <span className="ml-6"> Rp 10.000 - Rp 25.000</span>
+                      <span className="ml-6">Rp 10.000 - Rp 25.000</span>
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/category/25.000"
+                      to="/price/over-25000"
                       className={`flex items-center px-4 py-2 rounded-md ${isActive(
-                        '/25.000',
+                        '/price/over-25000',
                       )}`}
                     >
                       <span className="ml-6">Diatas Rp 25.000</span>
@@ -251,9 +251,9 @@ export default function Layout() {
                   </li>
                   <li>
                     <Link
-                      to="/equipment/portable-stove"
+                      to="/equipment/kompor"
                       className={`flex items-center px-4 py-2 rounded-md ${isActive(
-                        '/equipment/portable-stove',
+                        '/equipment/kompor',
                       )}`}
                     >
                       <span className="ml-6">Kompor</span>
@@ -261,12 +261,32 @@ export default function Layout() {
                   </li>
                   <li>
                     <Link
-                      to="/equipment/panci-rebus"
+                      to="/equipment/wajan"
                       className={`flex items-center px-4 py-2 rounded-md ${isActive(
-                        '/panci-rebus',
+                        '/equipment/wajan',
                       )}`}
                     >
-                      <span className="ml-6">Panci Rebus</span>
+                      <span className="ml-6">Wajan</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/equipment/panci-rebus"
+                      className={`flex items-center px-4 py-2 rounded-md ${isActive(
+                        '/equipment/panci-rebus',
+                      )}`}
+                    >
+                      <span className="ml-6">Panci rebus</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/equipment/lainnya"
+                      className={`flex items-center px-4 py-2 rounded-md ${isActive(
+                        '/equipment/lainnya',
+                      )}`}
+                    >
+                      <span className="ml-6">Lainnya</span>
                     </Link>
                   </li>
                 </ul>
