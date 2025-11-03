@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
+  loginGoogle: (tokenId: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -141,6 +142,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const loginGoogle = async (tokenId: string) => {
+    try {
+      const response = await authAPI.loginGoogle(tokenId);
+      const { token: newToken, user: userData } = response.data;
+      
+      setToken(newToken);
+      setUser(userData);
+      
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error: any) {
+      // Handle validation errors
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const errorMessages = error.response.data.errors.map((err: any) => err.msg || err.message).join(', ');
+        throw new Error(errorMessages || error.response?.data?.message || 'Login dengan Google gagal');
+      }
+      
+      // Handle network errors
+      if (!error.response) {
+        throw new Error('Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:5000');
+      }
+      
+      // Handle other errors
+      throw new Error(error.response?.data?.message || error.message || 'Login dengan Google gagal. Silakan coba lagi.');
+    }
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -154,6 +182,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         token,
         login,
+        loginGoogle,
         register,
         logout,
         isAuthenticated: !!token,

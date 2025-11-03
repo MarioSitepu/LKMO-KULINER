@@ -135,6 +135,171 @@ router.put('/profile', authenticate, uploadSingle, [
   }
 });
 
+// @route   GET /api/users/leaderboard
+// @desc    Get leaderboard users (most popular recipes, most recipes, highest ratings)
+// @access  Public
+router.get('/leaderboard', async (req, res) => {
+  try {
+    // 1. User dengan resep terpopuler (berdasarkan jumlah savedBy total)
+    const popularUsers = await Recipe.aggregate([
+      {
+        $group: {
+          _id: '$author',
+          totalSaves: { $sum: { $size: { $ifNull: ['$savedBy', []] } } }
+        }
+      },
+      {
+        $sort: { totalSaves: -1 }
+      },
+      {
+        $limit: 5
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          _id: '$user._id',
+          name: '$user.name',
+          image: '$user.image',
+          bio: '$user.bio',
+          totalSaves: 1
+        }
+      }
+    ]);
+
+    // 2. User dengan resep terbanyak
+    const mostRecipesUsers = await Recipe.aggregate([
+      {
+        $group: {
+          _id: '$author',
+          recipeCount: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { recipeCount: -1 }
+      },
+      {
+        $limit: 5
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          _id: '$user._id',
+          name: '$user.name',
+          image: '$user.image',
+          bio: '$user.bio',
+          recipeCount: 1
+        }
+      }
+    ]);
+
+    // 3. User dengan rating resep terbanyak (rata-rata rating semua resep mereka)
+    const highestRatingUsers = await Recipe.aggregate([
+      {
+        $match: {
+          ratingsCount: { $gt: 0 } // Hanya resep yang sudah ada rating
+        }
+      },
+      {
+        $group: {
+          _id: '$author',
+          avgRating: { $avg: '$rating' },
+          totalRatings: { $sum: '$ratingsCount' }
+        }
+      },
+      {
+        $match: {
+          totalRatings: { $gte: 1 } // Minimal 1 rating total
+        }
+      },
+      {
+        $sort: { avgRating: -1, totalRatings: -1 }
+      },
+      {
+        $limit: 5
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          _id: '$user._id',
+          name: '$user.name',
+          image: '$user.image',
+          bio: '$user.bio',
+          avgRating: { $round: ['$avgRating', 2] },
+          totalRatings: 1
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        popularRecipes: popularUsers.map((user, index) => ({
+          id: user._id.toString(),
+          name: user.name,
+          image: user.image,
+          bio: user.bio,
+          value: user.totalSaves,
+          rank: index + 1
+        })),
+        mostRecipes: mostRecipesUsers.map((user, index) => ({
+          id: user._id.toString(),
+          name: user.name,
+          image: user.image,
+          bio: user.bio,
+          value: user.recipeCount,
+          rank: index + 1
+        })),
+        highestRatings: highestRatingUsers.map((user, index) => ({
+          id: user._id.toString(),
+          name: user.name,
+          image: user.image,
+          bio: user.bio,
+          value: user.avgRating,
+          totalRatings: user.totalRatings,
+          rank: index + 1
+        }))
+      }
+    });
+  } catch (error) {
+    console.error('Get leaderboard error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error mengambil leaderboard',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/users/:id
 // @desc    Get user profile by ID
 // @access  Public

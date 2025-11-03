@@ -54,6 +54,11 @@ export const authAPI = {
     const response = await api.get('/auth/me');
     return response.data;
   },
+  
+  loginGoogle: async (tokenId: string) => {
+    const response = await api.post('/auth/google', { tokenId });
+    return response.data;
+  },
 };
 
 // Recipe API
@@ -154,6 +159,11 @@ export const userAPI = {
   
   follow: async (id: string) => {
     const response = await api.post(`/users/${id}/follow`);
+    return response.data;
+  },
+  
+  getLeaderboard: async () => {
+    const response = await api.get('/users/leaderboard');
     return response.data;
   },
 };

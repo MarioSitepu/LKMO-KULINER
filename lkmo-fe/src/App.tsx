@@ -11,6 +11,7 @@ import CategoryPage from './pages/CategoryPage'
 import PricePage from './pages/PricePage'
 import SearchPage from './pages/SearchPage' // <-- 1. IMPORT HALAMAN BARU
 import EditProfilePage from './pages/EditProfilePage'
+import LeaderboardPage from './pages/LeaderboardPage'
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="category/:type" element={<CategoryPage />} />
         <Route path="price/:type" element={<PricePage />} />
         <Route path="search" element={<SearchPage />} /> {/* <-- 2. TAMBAHKAN RUTE BARU */}
+        <Route path="leaderboard" element={<LeaderboardPage />} />
         </Route>
       </Routes>
     </>

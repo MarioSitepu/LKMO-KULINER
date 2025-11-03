@@ -12,6 +12,7 @@ import {
   XIcon,
   SearchIcon,
   ChevronDownIcon,
+  TrophyIcon,
 } from 'lucide-react'
 import Footer from './footer'
 
@@ -89,6 +90,17 @@ export default function Layout() {
               </li>
               {/* === AKHIR PERUBAHAN === */}
 
+              <li>
+                <Link
+                  to="/leaderboard"
+                  className={`flex items-center px-4 py-3 rounded-md ${isActive(
+                    '/leaderboard',
+                  )}`}
+                >
+                  <TrophyIcon size={20} className="mr-3" />
+                  <span>Leaderboard</span>
+                </Link>
+              </li>
 
               {/* DROPDOWN WAKTU MAKAN */}
               <li className="pt-2">

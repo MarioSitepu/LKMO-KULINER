@@ -17,9 +17,17 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password harus diisi'],
+    required: function() {
+      // Password required jika tidak login via Google
+      return !this.googleId;
+    },
     minlength: [6, 'Password minimal 6 karakter'],
     select: false // Jangan return password secara default
+  },
+  googleId: {
+    type: String,
+    default: null,
+    sparse: true // Allow multiple null values but enforce uniqueness for non-null
   },
   image: {
     type: String,
@@ -48,7 +56,8 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  // Skip jika tidak ada password atau password tidak diubah
+  if (!this.password || !this.isModified('password')) return next();
   
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
