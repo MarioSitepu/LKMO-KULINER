@@ -18,10 +18,44 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Middleware
+// Middleware - CORS configuration
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:3000'
+].filter(Boolean); // Remove undefined values
+
+// Log allowed origins for debugging
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
+console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+console.log('🔗 FRONTEND_URL:', process.env.FRONTEND_URL);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      console.log('⚠️ Request with no origin - allowing');
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      console.log('✅ Allowed origin:', origin);
+      callback(null, true);
+    } else if (process.env.NODE_ENV === 'development') {
+      // In development, allow all origins
+      console.log('⚠️ Development mode - allowing origin:', origin);
+      callback(null, true);
+    } else {
+      // Production: reject unknown origins
+      console.log('❌ Rejected origin:', origin);
+      console.log('📋 Allowed origins:', allowedOrigins);
+      callback(new Error(`Not allowed by CORS. Origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

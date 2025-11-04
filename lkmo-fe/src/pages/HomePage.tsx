@@ -180,7 +180,7 @@ export default function HomePage() {
             ))
           ) : (
             <div className="col-span-4 text-center text-gray-500 py-8">
-              Belum ada resep terbaru
+              Belum ada resep. Jadilah yang pertama untuk membagikan resep!
             </div>
           )}
         </div>

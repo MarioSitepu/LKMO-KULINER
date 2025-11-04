@@ -224,6 +224,12 @@ export default function ProfilePage() {
             {savedRecipes.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <p>Belum ada resep yang disimpan.</p>
+                <Link
+                  to="/category/breakfast"
+                  className="mt-4 inline-block text-orange-500 hover:underline"
+                >
+                  Jelajahi Resep
+                </Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

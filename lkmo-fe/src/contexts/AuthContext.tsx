@@ -92,9 +92,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Handle network errors
       if (!error.response) {
         if (error.message?.includes('Network Error') || error.code === 'ERR_NETWORK') {
-          throw new Error('Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:5000');
+          throw new Error('Tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda atau coba lagi nanti.');
         }
-        throw new Error('Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:5000');
+        throw new Error('Tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda atau coba lagi nanti.');
       }
       
       // Handle specific status codes
@@ -134,7 +134,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Handle network errors
       if (!error.response) {
-        throw new Error('Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:5000');
+        if (error.message?.includes('Network Error') || error.code === 'ERR_NETWORK') {
+          throw new Error('Tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda atau coba lagi nanti.');
+        }
+        throw new Error('Tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda atau coba lagi nanti.');
       }
       
       // Handle other errors
@@ -145,7 +148,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loginGoogle = async (tokenId: string) => {
     try {
       const response = await authAPI.loginGoogle(tokenId);
+      
+      // Debug: log response structure
+      console.log('Google login response:', response);
+      
+      // Check if response has the expected structure
+      if (!response) {
+        throw new Error('Tidak ada response dari server');
+      }
+      
+      // Check if response has data property
+      if (!response.data) {
+        throw new Error('Format response tidak valid dari server');
+      }
+      
       const { token: newToken, user: userData } = response.data;
+      
+      if (!newToken) {
+        throw new Error('Token tidak ditemukan dalam response');
+      }
+      
+      if (!userData) {
+        throw new Error('Data user tidak ditemukan dalam response');
+      }
       
       setToken(newToken);
       setUser(userData);
@@ -153,6 +178,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error: any) {
+      console.error('Google login error detail:', error);
+      console.error('Error response:', error.response);
+      
       // Handle validation errors
       if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
         const errorMessages = error.response.data.errors.map((err: any) => err.msg || err.message).join(', ');
@@ -161,7 +189,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Handle network errors
       if (!error.response) {
-        throw new Error('Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:5000');
+        if (error.message?.includes('Network Error') || error.code === 'ERR_NETWORK') {
+          throw new Error('Tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda atau coba lagi nanti.');
+        }
+        throw new Error('Tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda atau coba lagi nanti.');
+      }
+      
+      // Handle specific status codes
+      if (error.response.status === 401) {
+        throw new Error('Autentikasi Google gagal. Silakan coba lagi.');
+      }
+      
+      if (error.response.status === 400) {
+        throw new Error(error.response?.data?.message || 'Data yang dimasukkan tidak valid');
+      }
+      
+      if (error.response.status === 500) {
+        throw new Error('Server error. Silakan coba lagi nanti');
       }
       
       // Handle other errors

@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: lkmo-backend
+    env: node
+    plan: free
+    rootDir: lkmo-be
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: FRONTEND_URL
+        sync: false
+      - key: MAX_FILE_SIZE
+        value: 5242880
+      - key: UPLOAD_PATH
+        value: uploads
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+
