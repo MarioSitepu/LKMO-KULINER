@@ -200,6 +200,8 @@ router.post('/google', [
       ]
     });
 
+    let isNewUser = false;
+
     if (user) {
       // Update googleId if user exists but doesn't have it
       if (!user.googleId && googleId) {
@@ -211,6 +213,7 @@ router.post('/google', [
       }
     } else {
       // Create new user
+      isNewUser = true;
       user = await User.create({
         name: name || email.split('@')[0],
         email: email.toLowerCase(),
@@ -225,7 +228,7 @@ router.post('/google', [
 
     res.json({
       success: true,
-      message: user.googleId && user.createdAt > new Date(Date.now() - 5000) 
+      message: isNewUser 
         ? 'Registrasi dengan Google berhasil' 
         : 'Login dengan Google berhasil',
       data: {

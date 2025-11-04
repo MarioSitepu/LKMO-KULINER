@@ -158,8 +158,12 @@ export default function RecipePage() {
   const getImageUrl = (image: string | null | undefined) => {
     if (!image) return 'https://via.placeholder.com/800x600?text=No+Image'
     if (image.startsWith('http')) return image
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-    return `${apiUrl}${image}`
+    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    // Remove /api from end if present (for static files)
+    if (baseUrl.endsWith('/api')) {
+      baseUrl = baseUrl.replace(/\/api$/, '')
+    }
+    return `${baseUrl}${image}`
   }
 
   const formatDate = (dateString: string | undefined) => {

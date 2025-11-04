@@ -15,8 +15,6 @@ erDiagram
         string image
         string bio
         string location
-        ObjectId[] followers
-        ObjectId[] following
         datetime createdAt
         datetime updatedAt
     }
@@ -52,7 +50,6 @@ erDiagram
     USER ||--o{ RECIPE : "membuat (author)"
     USER ||--o{ REVIEW : "memberi review"
     RECIPE ||--o{ REVIEW : "mempunyai"
-    USER }o--o{ USER : "follows (followers/following)"
     USER }o--o{ RECIPE : "menyimpan (savedBy)"
 ```
 
@@ -70,8 +67,6 @@ erDiagram
 - `image` (String, Optional) - URL gambar profil
 - `bio` (String, Optional, Max 500) - Bio pengguna
 - `location` (String, Optional) - Lokasi pengguna
-- `followers` (Array of ObjectId) - Daftar user yang mengikuti
-- `following` (Array of ObjectId) - Daftar user yang diikuti
 - `createdAt` (DateTime) - Waktu dibuat
 - `updatedAt` (DateTime) - Waktu terakhir diupdate
 
@@ -93,7 +88,6 @@ erDiagram
 - `ratingsCount` (Number, Default 0) - Jumlah rating
 - `savedBy` (Array of ObjectId) - Daftar user yang menyimpan
 - `createdAt` (DateTime) - Waktu dibuat
-- `updatedAt` (DateTime) - Waktu terakhir diupdate
 
 ### 3. REVIEW (Ulasan)
 **Primary Key:** `_id`  
@@ -125,12 +119,7 @@ erDiagram
 - **Kardinalitas:** 1:N (Recipe memiliki banyak Review)
 - **Constraint:** Unique (`recipe`, `user`) - Satu user hanya bisa review sekali per resep
 
-### 4. USER ↔ USER (Many-to-Many)
-- **Relasi:** User dapat mengikuti user lain (follow system)
-- **Implementasi:** Array `followers` dan `following` di dalam USER
-- **Kardinalitas:** M:N (User dapat mengikuti banyak User, User dapat diikuti banyak User)
-
-### 5. USER ↔ RECIPE (Many-to-Many)
+### 4. USER ↔ RECIPE (Many-to-Many)
 - **Relasi:** User dapat menyimpan banyak resep (save/bookmark)
 - **Implementasi:** Array `savedBy` di dalam RECIPE
 - **Kardinalitas:** M:N (User dapat menyimpan banyak Recipe, Recipe dapat disimpan banyak User)
@@ -164,8 +153,4 @@ erDiagram
 
 4. **Get Saved Recipes:**
    - Query RECIPE where `savedBy` contains `userId`
-
-5. **Get Following Users:**
-   - Query USER by `_id`
-   - Populate `following` array
 

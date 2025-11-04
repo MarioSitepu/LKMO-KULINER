@@ -35,7 +35,12 @@ export default function EditProfilePage() {
         image: null,
       })
       if (user.image) {
-        setPreview(user.image.startsWith('http') ? user.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${user.image}`)
+        let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        // Remove /api from end if present (for static files)
+        if (baseUrl.endsWith('/api')) {
+          baseUrl = baseUrl.replace(/\/api$/, '')
+        }
+        setPreview(user.image.startsWith('http') ? user.image : `${baseUrl}${user.image}`)
       }
     }
   }, [user, isAuthenticated, navigate])
