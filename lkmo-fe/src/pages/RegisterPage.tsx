@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, type FormEvent, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CookingPotIcon } from 'lucide-react'
 import { authAPI } from '../services/api'

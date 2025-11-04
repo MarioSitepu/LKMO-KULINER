@@ -1,4 +1,4 @@
-import { useState, FormEvent, ChangeEvent } from 'react'
+import { useState, type FormEvent, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon, XIcon } from 'lucide-react'
 import { recipeAPI } from '../services/api'
