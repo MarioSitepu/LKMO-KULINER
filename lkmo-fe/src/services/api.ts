@@ -2,12 +2,25 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Log API URL for debugging
+console.log('🔗 API URL:', API_URL);
+console.log('🌐 Environment:', import.meta.env.MODE);
+console.log('📝 VITE_API_URL from env:', import.meta.env.VITE_API_URL || '⚠️ NOT SET - using default localhost:5000');
+
+// Warn if using default localhost in production
+if (!import.meta.env.VITE_API_URL && import.meta.env.MODE === 'production') {
+  console.error('❌ ERROR: VITE_API_URL tidak di-set di Vercel!');
+  console.error('📋 Solusi: Set VITE_API_URL di Vercel Dashboard → Settings → Environment Variables');
+  console.error('📋 Format: https://your-backend-name.onrender.com/api');
+}
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Request interceptor - Add token to headers
