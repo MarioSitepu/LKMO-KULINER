@@ -11,9 +11,14 @@ const router = express.Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT Token
-const generateToken = (userId) => {
+const generateToken = (userId, rememberMe = false) => {
+  // If rememberMe is true, use longer expiry (30 days), otherwise use shorter expiry (1 day)
+  const expiresIn = rememberMe 
+    ? process.env.JWT_EXPIRE_REMEMBER || '30d'
+    : process.env.JWT_EXPIRE || '1d';
+  
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '7d'
+    expiresIn
   });
 };
 
@@ -107,7 +112,7 @@ router.post('/login', [
       });
     }
 
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
 
     // Find user and include password
     const user = await User.findOne({ email }).select('+password');
@@ -129,8 +134,8 @@ router.post('/login', [
       });
     }
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate token with rememberMe option
+    const token = generateToken(user._id, rememberMe === true);
 
     res.json({
       success: true,
