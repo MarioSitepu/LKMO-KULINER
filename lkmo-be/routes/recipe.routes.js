@@ -45,15 +45,20 @@ router.get('/', [
     // This allows recipes with multiple equipment to appear in multiple menus
     // We fetch all recipes first, then filter in-memory to ensure accuracy
     let equipmentFilter = null;
+    let equipmentFilters = []; // Array untuk multiple equipment
     if (equipment) {
-      if (equipment === 'other') {
-        // Filter recipes with equipment that is NOT in the main equipment list
-        equipmentFilter = 'other';
+      const equipmentStr = equipment.trim();
+      // Check if equipment contains comma (multiple values)
+      if (equipmentStr.includes(',')) {
+        // Split by comma and trim each value
+        equipmentFilters = equipmentStr.split(',').map(eq => eq.trim()).filter(eq => eq.length > 0);
       } else {
-        // Filter recipes that contain the specified equipment
-        equipmentFilter = equipment.trim();
+        // Single equipment value
+        equipmentFilters = [equipmentStr];
       }
-      // Don't add MongoDB query filter - we'll filter in memory for 100% accuracy
+      
+      // Set equipmentFilter flag for backward compatibility and to trigger in-memory filtering
+      equipmentFilter = equipmentFilters.length > 0 ? true : null;
     }
 
     if (author) {
@@ -115,7 +120,7 @@ router.get('/', [
 
     // Execute query
     // If we have equipment filter, we'll filter in-memory, so fetch more recipes
-    const queryLimit = equipmentFilter ? 1000 : undefined;
+    const queryLimit = equipmentFilters.length > 0 ? 1000 : undefined;
     let recipes = await Recipe.find(query)
       .populate('author', 'name image')
       .sort(sortObj)
@@ -124,30 +129,26 @@ router.get('/', [
 
     // Apply equipment filter in-memory for accuracy
     // This ensures recipes with multiple equipment appear in all relevant menus
-    if (equipmentFilter) {
-      if (equipmentFilter === 'other') {
-        // Filter recipes with equipment that is NOT in the main equipment list
-        const mainEquipment = ['Rice Cooker', 'Microwave', 'Kompor', 'Wajan', 'Panci rebus'];
-        recipes = recipes.filter(recipe => {
-          // Recipe must have equipment array with at least one item
-          if (!recipe.equipment || !Array.isArray(recipe.equipment) || recipe.equipment.length === 0) {
-            return false;
+    if (equipmentFilters.length > 0) {
+      const mainEquipment = ['Rice Cooker', 'Microwave', 'Kompor', 'Wajan', 'Panci rebus'];
+      
+      recipes = recipes.filter(recipe => {
+        if (!recipe.equipment || !Array.isArray(recipe.equipment)) {
+          return false;
+        }
+        
+        // Check if recipe matches any of the selected equipment filters (OR logic)
+        return equipmentFilters.some(filterValue => {
+          if (filterValue === 'other') {
+            // Filter recipes with equipment that is NOT in the main equipment list
+            return recipe.equipment.some(eq => !mainEquipment.includes(eq));
+          } else {
+            // Filter recipes that contain the specified equipment (exact match)
+            const normalizedFilter = filterValue.trim();
+            return recipe.equipment.some(eq => eq && eq.trim() === normalizedFilter);
           }
-          // Recipe must have at least one equipment that is NOT in mainEquipment
-          return recipe.equipment.some(eq => !mainEquipment.includes(eq));
         });
-      } else {
-        // Filter recipes that contain the specified equipment (exact match)
-        // Normalize by trimming spaces for comparison
-        const filterValue = equipmentFilter.trim();
-        recipes = recipes.filter(recipe => {
-          if (!recipe.equipment || !Array.isArray(recipe.equipment)) {
-            return false;
-          }
-          // Check if equipment array contains the filter value (case-sensitive, exact match)
-          return recipe.equipment.some(eq => eq && eq.trim() === filterValue);
-        });
-      }
+      });
     }
 
     // Apply price filter if specified (in-memory filtering for accuracy)
@@ -171,7 +172,7 @@ router.get('/', [
     }
 
     // Get total count (after filters if applied)
-    const total = (priceRangeFilter || equipmentFilter) ? recipes.length : await Recipe.countDocuments(query);
+    const total = (priceRangeFilter || equipmentFilters.length > 0) ? recipes.length : await Recipe.countDocuments(query);
 
     // Apply pagination after filtering
     const pageNum = parseInt(page);

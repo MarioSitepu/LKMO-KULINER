@@ -51,12 +51,12 @@ export default function SearchPage() {
   // State untuk filter radio
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedPrice, setSelectedPrice] = useState<string>('')
-  const [selectedEquipment, setSelectedEquipment] = useState<string>('')
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([])
 
   // Fungsi untuk menjalankan pencarian dengan filter
   const handleSearch = async () => {
     // Jika tidak ada keyword dan tidak ada filter yang dipilih, jangan lakukan pencarian
-    if (searchTerm.trim() === '' && !selectedCategory && !selectedPrice && !selectedEquipment) {
+    if (searchTerm.trim() === '' && !selectedCategory && !selectedPrice && selectedEquipment.length === 0) {
       setResults(null)
       return
     }
@@ -88,8 +88,8 @@ export default function SearchPage() {
         params.priceRange = PRICE_MAP[selectedPrice]
       }
 
-      if (selectedEquipment) {
-        params.equipment = selectedEquipment
+      if (selectedEquipment.length > 0) {
+        params.equipment = selectedEquipment.join(',')
       }
 
       const response = await recipeAPI.getAll(params)
@@ -122,7 +122,7 @@ export default function SearchPage() {
   useEffect(() => {
     // Hanya jalankan jika ada filter yang dipilih tapi tidak ada keyword
     // Jika ada keyword, biarkan user yang trigger dengan Enter atau button
-    if (!searchTerm.trim() && (selectedCategory || selectedPrice || selectedEquipment)) {
+    if (!searchTerm.trim() && (selectedCategory || selectedPrice || selectedEquipment.length > 0)) {
       handleSearch()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -132,7 +132,7 @@ export default function SearchPage() {
   const resetFilters = () => {
     setSelectedCategory('')
     setSelectedPrice('')
-    setSelectedEquipment('')
+    setSelectedEquipment([])
     setResults(null)
   }
 
@@ -183,12 +183,12 @@ export default function SearchPage() {
                 ? 'Filter Resep'
                 : searchedKeyword
                 ? `Hasil Pencarian "${searchedKeyword}"`
-                : selectedCategory || selectedPrice || selectedEquipment
+                : selectedCategory || selectedPrice || selectedEquipment.length > 0
                 ? 'Hasil Filter'
                 : 'Filter Resep'}
               {results !== null && !loading && ` (${results.length})`}
             </h2>
-            {(selectedCategory || selectedPrice || selectedEquipment || searchedKeyword) && (
+            {(selectedCategory || selectedPrice || selectedEquipment.length > 0 || searchedKeyword) && (
               <button
                 onClick={() => {
                   resetFilters()
@@ -383,22 +383,26 @@ export default function SearchPage() {
                 ].map((eq) => (
                   <label key={eq.value} className="flex items-center cursor-pointer">
                     <input
-                      type="radio"
+                      type="checkbox"
                       name="equipment"
                       value={eq.value}
-                      checked={selectedEquipment === eq.value}
+                      checked={selectedEquipment.includes(eq.value)}
                       onChange={(e) => {
-                        setSelectedEquipment(e.target.value)
+                        if (e.target.checked) {
+                          setSelectedEquipment([...selectedEquipment, eq.value])
+                        } else {
+                          setSelectedEquipment(selectedEquipment.filter(item => item !== eq.value))
+                        }
                       }}
-                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500 rounded"
                     />
                     <span className="ml-3 text-gray-600">{eq.label}</span>
                   </label>
                 ))}
-                {selectedEquipment && (
+                {selectedEquipment.length > 0 && (
                   <button
                     onClick={() => {
-                      setSelectedEquipment('')
+                      setSelectedEquipment([])
                     }}
                     className="text-xs text-orange-500 hover:text-orange-600 mt-1"
                   >
