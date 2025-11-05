@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { BookmarkIcon, LogOutIcon } from 'lucide-react'
+import { BookmarkIcon, LogOutIcon, MapPin } from 'lucide-react'
 import RecipeCard from '../components/RecipeCard'
 import { userAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
@@ -137,7 +137,10 @@ export default function ProfilePage() {
             <p className="text-gray-700 mb-4">{profile.bio}</p>
           )}
           {profile?.location && (
-            <p className="text-gray-500 text-sm mb-4">{profile.location}</p>
+            <div className="flex items-center gap-2 text-gray-500 text-sm mb-4">
+              <MapPin size={16} className="flex-shrink-0" />
+              <span>{profile.location}</span>
+            </div>
           )}
           <div className="flex flex-wrap gap-6">
             <div className="flex items-center text-gray-600">

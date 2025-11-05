@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TrophyIcon, UsersIcon, StarIcon, MedalIcon, FlameIcon } from 'lucide-react'
 import { userAPI, recipeAPI } from '../services/api'
 import RecipeCard from '../components/RecipeCard'
@@ -60,6 +61,7 @@ const getRankBgColor = (rank: number) => {
 }
 
 export default function LeaderboardPage() {
+  const navigate = useNavigate()
   const [data, setData] = useState<LeaderboardData | null>(null)
   const [popularRecipes, setPopularRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
@@ -125,11 +127,16 @@ export default function LeaderboardPage() {
 
     const imageUrl = getImageUrlForUser(user.image)
 
+    const handleClick = () => {
+      navigate(`/user/${user.id}`)
+    }
+
     return (
       <div
+        onClick={handleClick}
         className={`flex items-center gap-4 p-4 rounded-lg border-2 ${getRankBgColor(
           user.rank,
-        )} transition-all hover:shadow-md`}
+        )} transition-all hover:shadow-md cursor-pointer`}
       >
         <div className="flex items-center justify-center w-10 h-10">
           {getRankIcon(user.rank)}

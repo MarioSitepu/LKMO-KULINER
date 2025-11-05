@@ -12,6 +12,7 @@ import PricePage from './pages/PricePage'
 import SearchPage from './pages/SearchPage' // <-- 1. IMPORT HALAMAN BARU
 import EditProfilePage from './pages/EditProfilePage'
 import LeaderboardPage from './pages/LeaderboardPage'
+import UserProfilePage from './pages/UserProfilePage'
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="price/:type" element={<PricePage />} />
         <Route path="search" element={<SearchPage />} /> {/* <-- 2. TAMBAHKAN RUTE BARU */}
         <Route path="leaderboard" element={<LeaderboardPage />} />
+        <Route path="user/:id" element={<UserProfilePage />} />
         </Route>
       </Routes>
     </>
