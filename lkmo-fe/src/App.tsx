@@ -18,6 +18,9 @@ import AdminUsersPage from './pages/AdminUsersPage'
 import AdminRecipesPage from './pages/AdminRecipesPage'
 import AdminReviewsPage from './pages/AdminReviewsPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage'
+import ResetPasswordVerifyPage from './pages/ResetPasswordVerifyPage'
+import ResetPasswordSetPage from './pages/ResetPasswordSetPage'
 
 function App() {
 
@@ -26,6 +29,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/reset-password" element={<ResetPasswordRequestPage />} />
+        <Route path="/reset-password/verify" element={<ResetPasswordVerifyPage />} />
+        <Route path="/reset-password/set" element={<ResetPasswordSetPage />} />
         <Route path="/" element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="recipe/:id" element={<RecipePage />} />

@@ -244,6 +244,29 @@ export const userAPI = {
   },
 };
 
+// Password Reset API
+export const passwordResetAPI = {
+  requestOTP: async (email: string) => {
+    const response = await api.post('/password-reset/request', { email });
+    return response.data;
+  },
+
+  verifyOTP: async (email: string, code: string) => {
+    const response = await api.post('/password-reset/verify', { email, code });
+    return response.data;
+  },
+
+  resetPassword: async (email: string, otpId: string, password: string, confirmPassword: string) => {
+    const response = await api.post('/password-reset/reset', {
+      email,
+      otpId,
+      password,
+      confirmPassword
+    });
+    return response.data;
+  },
+};
+
 // Admin API
 export const adminAPI = {
   getDashboard: async () => {

@@ -8,7 +8,9 @@ import {
   Shield, 
   TrendingUp, 
   Calendar,
-  ArrowRight
+  ArrowRight,
+  Bell,
+  Key
 } from 'lucide-react';
 
 interface DashboardData {
@@ -25,6 +27,11 @@ interface DashboardData {
     email: string;
     image?: string;
     recipeCount: number;
+  }>;
+  passwordResetNotifications: Array<{
+    email: string;
+    userName: string;
+    resetAt: string;
   }>;
 }
 
@@ -212,6 +219,47 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Password Reset Notifications */}
+      {data.passwordResetNotifications && data.passwordResetNotifications.length > 0 && (
+        <div className="mt-8 bg-white rounded-lg shadow p-6">
+          <div className="flex items-center mb-4">
+            <Bell className="text-orange-600 mr-2" size={24} />
+            <h2 className="text-xl font-bold text-gray-900">Password Reset Notifications</h2>
+          </div>
+          <div className="space-y-3">
+            {data.passwordResetNotifications.map((notification, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg"
+              >
+                <div className="flex items-center">
+                  <Key className="text-orange-600 mr-3" size={20} />
+                  <div>
+                    <p className="font-medium text-gray-900">{notification.userName}</p>
+                    <p className="text-sm text-gray-600">{notification.email}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(notification.resetAt).toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                  Berhasil
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.passwordResetNotifications.length === 0 && (
+            <p className="text-gray-500 text-center py-4">Tidak ada notifikasi password reset</p>
+          )}
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="mt-8 bg-white rounded-lg shadow p-6">

@@ -3,6 +3,7 @@ import { body, validationResult, query } from 'express-validator';
 import User from '../models/User.model.js';
 import Recipe from '../models/Recipe.model.js';
 import Review from '../models/Review.model.js';
+import OTP from '../models/OTP.model.js';
 import { isAdmin } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -73,6 +74,30 @@ router.get('/dashboard', async (req, res) => {
       }
     ]);
 
+    // Get recent password resets (last 24 hours)
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    const recentPasswordResets = await OTP.find({
+      type: 'password_reset',
+      used: true,
+      lastAttemptAt: { $gte: oneDayAgo }
+    })
+      .sort({ lastAttemptAt: -1 })
+      .limit(10)
+      .lean();
+
+    // Get user info for password resets
+    const passwordResetNotifications = await Promise.all(
+      recentPasswordResets.map(async (otp) => {
+        const user = await User.findOne({ email: otp.email }).select('name email');
+        return {
+          email: otp.email,
+          userName: user?.name || 'Unknown',
+          resetAt: otp.lastAttemptAt
+        };
+      })
+    );
+
     res.json({
       success: true,
       data: {
@@ -83,7 +108,8 @@ router.get('/dashboard', async (req, res) => {
         newUsers,
         newRecipes,
         recipesByCategory,
-        topUsers
+        topUsers,
+        passwordResetNotifications
       }
     });
   } catch (error) {

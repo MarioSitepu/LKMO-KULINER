@@ -178,6 +178,14 @@ export default function LoginPage() {
                   Ingat saya
                 </label>
               </div>
+              <div className="text-sm">
+                <Link
+                  to="/reset-password"
+                  className="font-medium text-orange-500 hover:text-orange-600"
+                >
+                  Lupa password?
+                </Link>
+              </div>
             </div>
             <div>
               <button
