@@ -8,6 +8,7 @@ interface User {
   image?: string;
   bio?: string;
   location?: string;
+  role?: 'user' | 'admin';
 }
 
 interface AuthContextType {
@@ -18,6 +19,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   loading: boolean;
 }
 
@@ -230,6 +232,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         register,
         logout,
         isAuthenticated: !!token,
+        isAdmin: user?.role === 'admin',
         loading,
       }}
     >

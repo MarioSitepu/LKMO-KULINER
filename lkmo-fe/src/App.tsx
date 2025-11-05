@@ -13,6 +13,11 @@ import SearchPage from './pages/SearchPage' // <-- 1. IMPORT HALAMAN BARU
 import EditProfilePage from './pages/EditProfilePage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import UserProfilePage from './pages/UserProfilePage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
+import AdminUsersPage from './pages/AdminUsersPage'
+import AdminRecipesPage from './pages/AdminRecipesPage'
+import AdminReviewsPage from './pages/AdminReviewsPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
 
@@ -33,6 +38,11 @@ function App() {
         <Route path="search" element={<SearchPage />} /> {/* <-- 2. TAMBAHKAN RUTE BARU */}
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="user/:id" element={<UserProfilePage />} />
+        {/* Admin Routes */}
+        <Route path="admin" element={<ProtectedRoute requireAdmin><AdminDashboardPage /></ProtectedRoute>} />
+        <Route path="admin/users" element={<ProtectedRoute requireAdmin><AdminUsersPage /></ProtectedRoute>} />
+        <Route path="admin/recipes" element={<ProtectedRoute requireAdmin><AdminRecipesPage /></ProtectedRoute>} />
+        <Route path="admin/reviews" element={<ProtectedRoute requireAdmin><AdminReviewsPage /></ProtectedRoute>} />
         </Route>
       </Routes>
     </>

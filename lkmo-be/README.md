@@ -13,6 +13,7 @@ Backend API untuk aplikasi resep makanan menggunakan Node.js, Express, dan Mongo
 - ✅ Upload gambar profil
 - ✅ Search & Filter Resep
 - ✅ Pagination
+- ✅ Admin Dashboard & Management
 
 ## Teknologi
 
@@ -47,7 +48,17 @@ FRONTEND_URL=http://localhost:5173
 
 4. Pastikan MongoDB sudah berjalan (atau gunakan MongoDB Atlas)
 
-5. Jalankan server:
+5. Buat admin user pertama kali:
+```bash
+npm run create-admin
+```
+Default credentials:
+- Email: `admin@lkmo.com`
+- Password: `admin123456`
+
+📖 **Panduan lengkap setup admin: [ADMIN_SETUP.md](./ADMIN_SETUP.md)**
+
+6. Jalankan server:
 ```bash
 # Development
 npm run dev
@@ -88,6 +99,17 @@ npm start
 - `GET /api/users/:id` - Get user profile by ID
 - `GET /api/users/:id/recipes` - Get recipes by user
 - `POST /api/users/:id/follow` - Follow/Unfollow user (protected)
+
+### Admin (Admin Only)
+
+- `GET /api/admin/dashboard` - Get dashboard statistics
+- `GET /api/admin/users` - Get all users with pagination
+- `PUT /api/admin/users/:id/role` - Update user role
+- `DELETE /api/admin/users/:id` - Delete user
+- `GET /api/admin/recipes` - Get all recipes with pagination
+- `DELETE /api/admin/recipes/:id` - Delete recipe
+- `GET /api/admin/reviews` - Get all reviews with pagination
+- `DELETE /api/admin/reviews/:id` - Delete review
 
 ### Health Check
 
@@ -222,4 +244,5 @@ curl -X POST http://localhost:5000/api/recipes \
 - Untuk production, gunakan service seperti AWS S3, Cloudinary, atau storage service lainnya untuk menyimpan gambar
 - Jangan commit file `.env` ke repository
 - Pastikan `JWT_SECRET` kuat dan aman di production
+- Setelah membuat admin, segera ubah password default untuk keamanan
 

@@ -78,7 +78,8 @@ router.post('/register', [
           email: user.email,
           image: user.image,
           bio: user.bio,
-          location: user.location
+          location: user.location,
+          role: user.role
         }
       }
     });
@@ -114,10 +115,23 @@ router.post('/login', [
 
     const { email, password, rememberMe } = req.body;
 
+    // Normalize email to lowercase (consistent with User model)
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Find user and include password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
     
     if (!user) {
+      console.log(`Login failed: User not found for email: ${normalizedEmail}`);
+      return res.status(401).json({
+        success: false,
+        message: 'Email atau password salah'
+      });
+    }
+
+    // Check if user has password (Google users might not have password)
+    if (!user.password) {
+      console.log(`Login failed: User ${normalizedEmail} has no password (Google user?)`);
       return res.status(401).json({
         success: false,
         message: 'Email atau password salah'
@@ -128,6 +142,7 @@ router.post('/login', [
     const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {
+      console.log(`Login failed: Password mismatch for email: ${normalizedEmail}`);
       return res.status(401).json({
         success: false,
         message: 'Email atau password salah'
@@ -148,7 +163,8 @@ router.post('/login', [
           email: user.email,
           image: user.image,
           bio: user.bio,
-          location: user.location
+          location: user.location,
+          role: user.role
         }
       }
     });
@@ -244,7 +260,8 @@ router.post('/google', [
           email: user.email,
           image: user.image,
           bio: user.bio,
-          location: user.location
+          location: user.location,
+          role: user.role
         }
       }
     });
@@ -287,6 +304,7 @@ router.get('/me', authenticate, async (req, res) => {
           image: user.image,
           bio: user.bio,
           location: user.location,
+          role: user.role,
           followersCount: user.followersCount,
           followingCount: user.followingCount,
           createdAt: user.createdAt

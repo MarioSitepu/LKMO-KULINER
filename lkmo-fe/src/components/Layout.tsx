@@ -13,7 +13,9 @@ import {
   SearchIcon,
   ChevronDownIcon,
   TrophyIcon,
+  ShieldIcon,
 } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 import Footer from './footer'
 
 export default function Layout() {
@@ -22,6 +24,7 @@ export default function Layout() {
   const [isHargaOpen, setIsHargaOpen] = useState(false)
   const [isPeralatanOpen, setIsPeralatanOpen] = useState(false)
   const location = useLocation()
+  const { isAdmin, isAuthenticated } = useAuth()
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -325,18 +328,33 @@ export default function Layout() {
                   <span>Profil</span>
                 </Link>
               </li>
+              {isAuthenticated && isAdmin && (
+                <li>
+                  <Link
+                    to="/admin"
+                    className={`flex items-center px-4 py-3 rounded-md ${isActive(
+                      '/admin',
+                    )}`}
+                  >
+                    <ShieldIcon size={20} className="mr-3" />
+                    <span>Admin</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
           {/* Login button */}
-          <div className="p-4 border-t border-orange-100">
-            <Link
-              to="/login"
-              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600"
-            >
-              <LogInIcon size={18} className="mr-2" />
-              <span>Masuk</span>
-            </Link>
-          </div>
+          {!isAuthenticated && (
+            <div className="p-4 border-t border-orange-100">
+              <Link
+                to="/login"
+                className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600"
+              >
+                <LogInIcon size={18} className="mr-2" />
+                <span>Masuk</span>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
       

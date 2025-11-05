@@ -79,10 +79,25 @@ api.interceptors.response.use(
 
     // Handle 401 errors
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Skip redirect for auth endpoints (login/register) to allow error handling in component
+      // This prevents page refresh when login/register fails
+      const requestUrl = error.config?.url || '';
+      const isAuthEndpoint = requestUrl.includes('/auth/login') || 
+                            requestUrl.includes('/auth/register') ||
+                            requestUrl.includes('/auth/google');
+      
+      // Only redirect if:
+      // 1. Not an auth endpoint (login/register/google)
+      // 2. Not already on login or register page
+      // This allows login errors to be handled by the component without redirect
+      if (!isAuthEndpoint && 
+          window.location.pathname !== '/login' && 
+          window.location.pathname !== '/register') {
+        // Token expired or invalid - redirect to login only if not on auth pages
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
 
     return Promise.reject(error);
@@ -225,6 +240,49 @@ export const userAPI = {
   
   getLeaderboard: async () => {
     const response = await api.get('/users/leaderboard');
+    return response.data;
+  },
+};
+
+// Admin API
+export const adminAPI = {
+  getDashboard: async () => {
+    const response = await api.get('/admin/dashboard');
+    return response.data;
+  },
+
+  getUsers: async (params?: { page?: number; limit?: number; search?: string }) => {
+    const response = await api.get('/admin/users', { params });
+    return response.data;
+  },
+
+  updateUserRole: async (id: string, role: 'user' | 'admin') => {
+    const response = await api.put(`/admin/users/${id}/role`, { role });
+    return response.data;
+  },
+
+  deleteUser: async (id: string) => {
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  },
+
+  getRecipes: async (params?: { page?: number; limit?: number; search?: string }) => {
+    const response = await api.get('/admin/recipes', { params });
+    return response.data;
+  },
+
+  deleteRecipe: async (id: string) => {
+    const response = await api.delete(`/admin/recipes/${id}`);
+    return response.data;
+  },
+
+  getReviews: async (params?: { page?: number; limit?: number }) => {
+    const response = await api.get('/admin/reviews', { params });
+    return response.data;
+  },
+
+  deleteReview: async (id: string) => {
+    const response = await api.delete(`/admin/reviews/${id}`);
     return response.data;
   },
 };
