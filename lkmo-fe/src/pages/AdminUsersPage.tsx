@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../services/api';
-import { Users, Search, Shield, User, Trash2, Edit } from 'lucide-react';
+import { Users, Search, Trash2 } from 'lucide-react';
 
 interface UserData {
   _id: string;

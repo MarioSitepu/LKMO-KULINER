@@ -11,7 +11,6 @@ export default function ResetPasswordVerifyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(5 * 60); // 5 minutes in seconds
-  const [otpId, setOtpId] = useState('');
 
   useEffect(() => {
     if (!email) {
@@ -47,7 +46,6 @@ export default function ResetPasswordVerifyPage() {
     try {
       const response = await passwordResetAPI.verifyOTP(email, otp);
       if (response.success) {
-        setOtpId(response.otpId);
         navigate('/reset-password/set', {
           state: { email, otpId: response.otpId }
         });

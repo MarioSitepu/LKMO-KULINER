@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../services/api';
-import { Star, Search, Trash2, Eye } from 'lucide-react';
+import { Star, Trash2, Eye } from 'lucide-react';
 
 interface ReviewData {
   _id: string;

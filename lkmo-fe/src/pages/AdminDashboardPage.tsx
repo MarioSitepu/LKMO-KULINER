@@ -7,7 +7,6 @@ import {
   Star, 
   Shield, 
   TrendingUp, 
-  Calendar,
   ArrowRight,
   Bell,
   Key
