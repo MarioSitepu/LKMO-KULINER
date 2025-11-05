@@ -85,7 +85,33 @@ export const sendOTPEmail = async (email, otpCode) => {
   }
 };
 
+// Helper function to validate email format and domain
+const isValidEmail = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  
+  // Basic email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) return false;
+  
+  // Check if email domain is not a placeholder/test domain
+  const invalidDomains = ['lkmo.com', 'example.com', 'test.com', 'localhost'];
+  const domain = email.split('@')[1]?.toLowerCase();
+  
+  if (!domain || invalidDomains.includes(domain)) {
+    console.warn(`[Email Validation] Skipping invalid email domain: ${email}`);
+    return false;
+  }
+  
+  return true;
+};
+
 export const sendPasswordResetNotification = async (adminEmail, userEmail, userName) => {
+  // Validate admin email before attempting to send
+  if (!isValidEmail(adminEmail)) {
+    console.warn(`[Admin Notification] Skipping invalid admin email: ${adminEmail}`);
+    return { success: false, error: 'Invalid admin email address', skipped: true };
+  }
+
   try {
     const transporter = createTransporter();
 
@@ -114,10 +140,11 @@ export const sendPasswordResetNotification = async (adminEmail, userEmail, userN
     };
 
     await transporter.sendMail(mailOptions);
+    console.log(`[Admin Notification] Successfully sent to ${adminEmail}`);
     return { success: true };
   } catch (error) {
-    console.error('Error sending admin notification:', error);
-    // Don't throw error for admin notification
+    console.error(`[Admin Notification] Error sending to ${adminEmail}:`, error.message);
+    // Don't throw error for admin notification - it's not critical
     return { success: false, error: error.message };
   }
 };

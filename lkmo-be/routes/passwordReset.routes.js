@@ -326,8 +326,15 @@ router.post('/reset', [
     // Send notification to admin
     try {
       const adminUsers = await User.find({ role: 'admin' }).select('email');
-      for (const admin of adminUsers) {
-        await sendPasswordResetNotification(admin.email, user.email, user.name);
+      if (adminUsers.length === 0) {
+        console.log('[Admin Notification] No admin users found');
+      } else {
+        for (const admin of adminUsers) {
+          const result = await sendPasswordResetNotification(admin.email, user.email, user.name);
+          if (result.skipped) {
+            console.warn(`[Admin Notification] Skipped invalid admin email: ${admin.email}`);
+          }
+        }
       }
     } catch (notifError) {
       console.error('Failed to send admin notification:', notifError);

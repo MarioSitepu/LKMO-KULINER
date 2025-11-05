@@ -34,6 +34,21 @@ UPLOAD_PATH=uploads
 
 # Google OAuth (Optional - jika menggunakan Google Login)
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+
+# Email Configuration (Required untuk Reset Password)
+# Opsi 1: Gmail dengan App Password (Recommended untuk Development)
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-gmail-app-password
+EMAIL_FROM=your-email@gmail.com
+
+# Opsi 2: SMTP Server (untuk Production - SendGrid, Mailgun, dll)
+# Uncomment dan gunakan jika menggunakan SMTP server lain
+# SMTP_HOST=smtp.sendgrid.net
+# SMTP_PORT=587
+# SMTP_SECURE=false
+# SMTP_USER=apikey
+# SMTP_PASS=your-sendgrid-api-key
+# EMAIL_FROM=noreply@yourdomain.com
 ```
 
 ## 📋 Penjelasan Variable (Baris 5-20)
@@ -49,6 +64,9 @@ GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 | 21 | `MAX_FILE_SIZE` | Max upload size (bytes) | `5242880` (5MB) |
 | 22 | `UPLOAD_PATH` | Folder uploads | `uploads` |
 | 25 | `GOOGLE_CLIENT_ID` | Google OAuth Client ID | `xxx.apps.googleusercontent.com` |
+| 28 | `EMAIL_USER` | Email untuk mengirim OTP (Gmail) | `your-email@gmail.com` |
+| 29 | `EMAIL_PASS` | Gmail App Password | `xxxx xxxx xxxx xxxx` |
+| 30 | `EMAIL_FROM` | Email pengirim | `your-email@gmail.com` |
 
 ## ⚠️ Catatan Penting
 
@@ -103,6 +121,9 @@ Saat setup di Render, pastikan semua variable berikut sudah di-set:
 - [ ] `MAX_FILE_SIZE=5242880`
 - [ ] `UPLOAD_PATH=uploads`
 - [ ] `GOOGLE_CLIENT_ID` (jika menggunakan Google login)
+- [ ] `EMAIL_USER` (untuk reset password via Gmail)
+- [ ] `EMAIL_PASS` (Gmail App Password)
+- [ ] `EMAIL_FROM` (email pengirim)
 
 ## 🐛 Troubleshooting
 

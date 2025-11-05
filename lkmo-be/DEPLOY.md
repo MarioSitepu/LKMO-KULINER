@@ -45,12 +45,28 @@ JWT_EXPIRE=7d
 FRONTEND_URL=https://your-frontend-domain.com
 MAX_FILE_SIZE=5242880
 UPLOAD_PATH=uploads
+
+# Email Configuration (Required untuk Reset Password)
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-gmail-app-password
+EMAIL_FROM=your-email@gmail.com
+
+# Atau gunakan SMTP (untuk Production)
+# SMTP_HOST=smtp.sendgrid.net
+# SMTP_PORT=587
+# SMTP_SECURE=false
+# SMTP_USER=apikey
+# SMTP_PASS=your-api-key
+# EMAIL_FROM=noreply@yourdomain.com
 ```
 
 **⚠️ PENTING:**
 - Ganti `JWT_SECRET` dengan string acak yang kuat
 - Ganti `MONGODB_URI` dengan connection string MongoDB Anda
 - Sesuaikan `FRONTEND_URL` dengan URL frontend Anda
+- **Email variables HARUS di-set** untuk fitur reset password
+- Untuk Gmail: gunakan App Password (bukan password biasa)
+- **📖 Panduan lengkap: [RENDER_EMAIL_SETUP.md](./RENDER_EMAIL_SETUP.md)**
 
 ## Deployment Options
 
