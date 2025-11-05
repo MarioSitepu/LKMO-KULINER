@@ -1,17 +1,30 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get base URL from environment variable
+let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// Normalize URL: remove trailing slash
+baseUrl = baseUrl.replace(/\/$/, '');
+
+// Auto-add /api if not present (for backward compatibility)
+// This handles cases where VITE_API_URL is set without /api
+if (!baseUrl.endsWith('/api')) {
+  baseUrl = `${baseUrl}/api`;
+}
+
+const API_URL = baseUrl;
 
 // Log API URL for debugging
 console.log('🔗 API URL:', API_URL);
 console.log('🌐 Environment:', import.meta.env.MODE);
 console.log('📝 VITE_API_URL from env:', import.meta.env.VITE_API_URL || '⚠️ NOT SET - using default localhost:5000');
+console.log('✅ Normalized API URL:', API_URL);
 
 // Warn if using default localhost in production
 if (!import.meta.env.VITE_API_URL && import.meta.env.MODE === 'production') {
   console.error('❌ ERROR: VITE_API_URL tidak di-set di Vercel!');
   console.error('📋 Solusi: Set VITE_API_URL di Vercel Dashboard → Settings → Environment Variables');
-  console.error('📋 Format: https://your-backend-name.onrender.com/api');
+  console.error('📋 Format: https://your-backend-name.onrender.com (atau tambahkan /api di akhir)');
 }
 
 // Create axios instance

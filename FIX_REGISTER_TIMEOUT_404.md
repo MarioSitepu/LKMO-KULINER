@@ -40,10 +40,11 @@ Saat daftar di web yang sudah di-deploy, muncul error:
 2. **Tambahkan Environment Variable:**
    - Di Vercel, klik **"Add New"**
    - **Key**: `VITE_API_URL`
-   - **Value**: `https://your-backend-name.onrender.com/api`
+   - **Value**: `https://your-backend-name.onrender.com`
      - **PENTING**: Ganti `your-backend-name` dengan nama backend Anda
-     - **PENTING**: Tambahkan `/api` di akhir
      - **PENTING**: Gunakan `https://` (bukan `http://`)
+     - **CATATAN**: Kode akan otomatis menambahkan `/api` jika belum ada, jadi tidak perlu tambahkan `/api` di akhir
+     - **OPSIONAL**: Bisa juga langsung set `https://your-backend-name.onrender.com/api` (keduanya akan bekerja)
    - **Environment**: Pilih **Production**, **Preview**, dan **Development**
    - Klik **Save**
 
