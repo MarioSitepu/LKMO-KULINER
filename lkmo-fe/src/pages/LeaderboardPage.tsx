@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { TrophyIcon, UsersIcon, StarIcon, MedalIcon } from 'lucide-react'
-import { userAPI } from '../services/api'
+import { TrophyIcon, UsersIcon, StarIcon, MedalIcon, FlameIcon } from 'lucide-react'
+import { userAPI, recipeAPI } from '../services/api'
+import RecipeCard from '../components/RecipeCard'
 
 interface LeaderboardUser {
   id: string
@@ -16,6 +17,20 @@ interface LeaderboardData {
   popularRecipes: LeaderboardUser[]
   mostRecipes: LeaderboardUser[]
   highestRatings: LeaderboardUser[]
+}
+
+interface Recipe {
+  _id: string
+  title: string
+  image: string | null
+  rating: number
+  prepTime: number
+  equipment: string[]
+  author: {
+    name: string
+    image?: string
+  }
+  price: string
 }
 
 const getRankIcon = (rank: number) => {
@@ -46,15 +61,24 @@ const getRankBgColor = (rank: number) => {
 
 export default function LeaderboardPage() {
   const [data, setData] = useState<LeaderboardData | null>(null)
+  const [popularRecipes, setPopularRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await userAPI.getLeaderboard()
-        setData(response.data)
+        const [leaderboardResponse, recipesResponse] = await Promise.all([
+          userAPI.getLeaderboard(),
+          recipeAPI.getPopular(6)
+        ])
+        
+        setData(leaderboardResponse.data)
+        
+        if (recipesResponse.success && recipesResponse.data?.recipes) {
+          setPopularRecipes(recipesResponse.data.recipes)
+        }
       } catch (err: any) {
         setError(err.message || 'Gagal memuat leaderboard')
       } finally {
@@ -62,10 +86,21 @@ export default function LeaderboardPage() {
       }
     }
 
-    fetchLeaderboard()
+    fetchData()
   }, [])
 
   const getImageUrl = (image: string | null | undefined) => {
+    if (!image) return 'https://via.placeholder.com/400x300?text=No+Image'
+    if (image.startsWith('http')) return image
+    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+    // Remove /api from end if present (for static files)
+    if (baseUrl.endsWith('/api')) {
+      baseUrl = baseUrl.replace(/\/api$/, '')
+    }
+    return `${baseUrl}${image}`
+  }
+
+  const getImageUrlForUser = (image: string | null | undefined) => {
     if (!image) return null
     if (image.startsWith('http')) return image
     let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
@@ -88,7 +123,7 @@ export default function LeaderboardPage() {
       }
     }
 
-    const imageUrl = getImageUrl(user.image)
+    const imageUrl = getImageUrlForUser(user.image)
 
     return (
       <div
@@ -246,6 +281,38 @@ export default function LeaderboardPage() {
               </p>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* 6 Resep Terpopuler */}
+      <div className="mt-12">
+        <div className="flex items-center gap-2 mb-6">
+          <FlameIcon className="w-6 h-6 text-orange-500" />
+          <h2 className="text-2xl font-bold text-gray-800">6 Resep Terpopuler</h2>
+        </div>
+        <p className="text-gray-600 mb-6">
+          Resep yang paling banyak disimpan oleh pengguna
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {popularRecipes.length > 0 ? (
+            popularRecipes.map((recipe) => (
+              <RecipeCard
+                key={recipe._id}
+                id={recipe._id}
+                title={recipe.title}
+                image={getImageUrl(recipe.image)}
+                rating={recipe.rating || 0}
+                prepTime={`${recipe.prepTime} menit`}
+                equipment={recipe.equipment || []}
+                author={recipe.author?.name || 'Unknown'}
+                price={recipe.price || 'Rp 0'}
+              />
+            ))
+          ) : (
+            <div className="col-span-3 text-center text-gray-500 py-8">
+              Belum ada resep populer
+            </div>
+          )}
         </div>
       </div>
     </div>

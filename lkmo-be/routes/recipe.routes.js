@@ -102,10 +102,15 @@ router.get('/', [
 
     // Build sort
     let sortObj = { createdAt: -1 };
+    let sortByPopular = false;
     if (sort === 'rating') {
       sortObj = { rating: -1, ratingsCount: -1 };
     } else if (sort === 'prepTime') {
       sortObj = { prepTime: 1 };
+    } else if (sort === 'popular') {
+      // For popular sort, we'll sort in-memory by savedBy array length
+      sortByPopular = true;
+      sortObj = { createdAt: -1 }; // Default sort for initial fetch
     }
 
     // Execute query
@@ -149,6 +154,19 @@ router.get('/', [
     if (priceRangeFilter) {
       recipes = recipes.filter(recipe => {
         return recipe.price && priceRangeFilter(recipe.price);
+      });
+    }
+
+    // Apply popular sort if specified (in-memory sorting by savedBy count)
+    if (sortByPopular) {
+      recipes = recipes.sort((a, b) => {
+        const aSavedCount = a.savedBy?.length || 0;
+        const bSavedCount = b.savedBy?.length || 0;
+        if (bSavedCount !== aSavedCount) {
+          return bSavedCount - aSavedCount; // Descending order
+        }
+        // If same saved count, sort by rating
+        return (b.rating || 0) - (a.rating || 0);
       });
     }
 

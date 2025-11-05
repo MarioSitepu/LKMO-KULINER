@@ -175,7 +175,17 @@ export const recipeAPI = {
     });
     return response.data;
   },
-  
+
+  getPopular: async (limit: number = 6) => {
+    const response = await api.get('/recipes', {
+      params: {
+        limit,
+        sort: 'popular'
+      }
+    });
+    return response.data;
+  },
+
   getPopularCategories: async () => {
     const response = await api.get('/recipes/stats/popular-categories');
     return response.data;
