@@ -96,7 +96,25 @@ export default function RegisterPage() {
       })
     } catch (err: any) {
       console.error('Register error:', err)
-      setError(err.message || 'Registrasi gagal. Silakan coba lagi.')
+      
+      // Handle specific error types
+      let errorMessage = 'Registrasi gagal. Silakan coba lagi.'
+      
+      if (err.name === 'TimeoutError' || err.message?.includes('timeout')) {
+        errorMessage = 'Request timeout. Server mungkin sedang sleep (free tier). Silakan tunggu beberapa detik dan coba lagi, atau cek apakah backend sudah running.'
+      } else if (err.name === 'NetworkError' || err.message?.includes('Network Error') || err.code === 'ERR_NETWORK') {
+        errorMessage = 'Tidak dapat terhubung ke server. Pastikan backend sudah running atau cek koneksi internet Anda.'
+      } else if (err.name === 'NotFoundError' || err.response?.status === 404) {
+        errorMessage = 'Endpoint tidak ditemukan (404). Pastikan VITE_API_URL sudah benar di environment variables production.'
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message
+      } else if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        errorMessage = err.response.data.errors.map((e: any) => e.msg || e.message).join(', ')
+      } else if (err.message) {
+        errorMessage = err.message
+      }
+      
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

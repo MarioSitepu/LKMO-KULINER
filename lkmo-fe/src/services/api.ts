@@ -41,12 +41,37 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle timeout errors
+    if (error.code === 'ECONNABORTED' || error.message === 'timeout of 30000ms exceeded') {
+      const timeoutError = new Error('Request timeout. Server mungkin sedang sibuk atau sedang sleep (free tier). Silakan coba lagi.');
+      timeoutError.name = 'TimeoutError';
+      return Promise.reject(timeoutError);
+    }
+
+    // Handle network errors
+    if (!error.response) {
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        const networkError = new Error('Tidak dapat terhubung ke server. Pastikan backend sudah running atau coba lagi nanti.');
+        networkError.name = 'NetworkError';
+        return Promise.reject(networkError);
+      }
+    }
+
+    // Handle 404 errors
+    if (error.response?.status === 404) {
+      const notFoundError = new Error('Endpoint tidak ditemukan (404). Pastikan VITE_API_URL sudah benar di environment variables.');
+      notFoundError.name = 'NotFoundError';
+      return Promise.reject(notFoundError);
+    }
+
+    // Handle 401 errors
     if (error.response?.status === 401) {
       // Token expired or invalid
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+
     return Promise.reject(error);
   }
 );
