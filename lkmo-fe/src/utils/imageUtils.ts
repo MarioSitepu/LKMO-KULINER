@@ -19,6 +19,17 @@ export const getImageUrl = (image: string | null | undefined, placeholder?: stri
   // Ambil base URL dari environment variable
   let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
+  // Log untuk debugging (hanya di development atau jika VITE_API_URL tidak di-set)
+  if (import.meta.env.DEV) {
+    console.log('🖼️ Image URL Debug:', {
+      image,
+      imagePath,
+      viteApiUrl: import.meta.env.VITE_API_URL,
+      baseUrlBefore: baseUrl,
+      mode: import.meta.env.MODE
+    })
+  }
+
   // Normalize: hapus trailing slash
   baseUrl = baseUrl.replace(/\/$/, '')
 
@@ -29,7 +40,22 @@ export const getImageUrl = (image: string | null | undefined, placeholder?: stri
   }
 
   // Gabungkan base URL dengan path gambar
-  return `${baseUrl}${imagePath}`
+  const finalUrl = `${baseUrl}${imagePath}`
+
+  // Warning jika masih menggunakan localhost di production
+  if (import.meta.env.MODE === 'production' && baseUrl.includes('localhost')) {
+    console.error('❌ ERROR: VITE_API_URL tidak di-set di production!')
+    console.error('📋 Solusi: Set VITE_API_URL di Vercel Dashboard → Settings → Environment Variables')
+    console.error('📋 Format: https://your-backend-name.onrender.com/api')
+    console.error('🖼️ Current Image URL:', finalUrl)
+  }
+
+  // Log final URL hanya di development
+  if (import.meta.env.DEV) {
+    console.log('🖼️ Final Image URL:', finalUrl)
+  }
+
+  return finalUrl
 }
 
 /**
@@ -47,6 +73,11 @@ export const getUserImageUrl = (image: string | null | undefined): string | null
   
   if (baseUrl.endsWith('/api')) {
     baseUrl = baseUrl.replace(/\/api$/, '')
+  }
+
+  // Warning jika masih menggunakan localhost di production
+  if (import.meta.env.MODE === 'production' && baseUrl.includes('localhost')) {
+    console.error('❌ ERROR: VITE_API_URL tidak di-set di production!')
   }
 
   return `${baseUrl}${imagePath}`
