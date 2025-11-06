@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 // Import routes
@@ -71,7 +72,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (uploads)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const uploadsPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
+
+// Log untuk debugging
+console.log('📁 Uploads directory:', uploadsPath);
+console.log('📁 Uploads directory exists:', fs.existsSync(uploadsPath));
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lkmo-recipes')
