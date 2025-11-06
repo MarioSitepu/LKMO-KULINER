@@ -1,3 +1,6 @@
+// Flag untuk log pertama kali di production
+let hasLoggedImageUrlExample = false
+
 /**
  * Utility function untuk mendapatkan URL gambar yang benar
  * Menangani berbagai skenario: localhost, production, dan URL eksternal
@@ -20,7 +23,8 @@ export const getImageUrl = (image: string | null | undefined, placeholder?: stri
   let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
   // Log untuk debugging (hanya di development atau jika VITE_API_URL tidak di-set)
-  if (import.meta.env.DEV) {
+  // Juga log di production untuk debugging masalah gambar
+  if (import.meta.env.DEV || !import.meta.env.VITE_API_URL) {
     console.log('🖼️ Image URL Debug:', {
       image,
       imagePath,
@@ -50,9 +54,17 @@ export const getImageUrl = (image: string | null | undefined, placeholder?: stri
     console.error('🖼️ Current Image URL:', finalUrl)
   }
 
-  // Log final URL hanya di development
+  // Log final URL untuk debugging
   if (import.meta.env.DEV) {
     console.log('🖼️ Final Image URL:', finalUrl)
+  } else if (import.meta.env.MODE === 'production') {
+    // Log contoh URL gambar pertama kali di production untuk debugging
+    if (!hasLoggedImageUrlExample && image) {
+      hasLoggedImageUrlExample = true
+      console.log('🖼️ Image URL Example (first image):', finalUrl)
+      console.log('💡 Tip: Jika gambar tidak muncul, test URL ini langsung di browser')
+      console.log('💡 Pastikan backend menyajikan file statis di route /uploads')
+    }
   }
 
   return finalUrl

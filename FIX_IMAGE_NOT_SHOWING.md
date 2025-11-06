@@ -52,8 +52,12 @@ Setelah menambah/update environment variable:
 1. Buka website production Anda di browser
 2. Buka **Developer Tools** (F12)
 3. Buka tab **Console**
-4. Cari log: `🖼️ Image URL Debug:` atau `🖼️ Final Image URL:`
-5. Pastikan URL menunjukkan backend Render Anda (bukan `localhost:5000`)
+4. Cari log: `🖼️ Image URL Example (first image):`
+5. Copy URL yang muncul (contoh: `https://lkmo-backend.onrender.com/uploads/image-xxx.png`)
+6. Buka URL tersebut di tab baru browser
+7. Jika gambar muncul → URL benar, kemungkinan masalah di frontend
+8. Jika error 404 → Backend tidak menyajikan file statis dengan benar
+9. Jika error CORS → Backend perlu update CORS settings
 
 ## 🔍 Debugging
 
