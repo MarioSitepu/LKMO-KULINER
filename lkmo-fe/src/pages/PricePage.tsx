@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import { recipeAPI } from '../services/api'
+import { getImageUrl } from '../utils/imageUtils'
 
 const PRICE_TYPES = {
   'under-10000': {
@@ -91,16 +92,6 @@ export default function PricePage() {
     filterValue: '',
   }
 
-  const getImageUrl = (image: string | null | undefined) => {
-    if (!image) return 'https://via.placeholder.com/400x300?text=No+Image'
-    if (image.startsWith('http')) return image
-    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-    // Remove /api from end if present (for static files)
-    if (baseUrl.endsWith('/api')) {
-      baseUrl = baseUrl.replace(/\/api$/, '')
-    }
-    return `${baseUrl}${image}`
-  }
 
   if (loading) {
     return (

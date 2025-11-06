@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { MapPin } from 'lucide-react'
 import RecipeCard from '../components/RecipeCard'
 import { userAPI } from '../services/api'
+import { getImageUrl } from '../utils/imageUtils'
 
 interface Recipe {
   _id: string
@@ -57,16 +58,6 @@ export default function UserProfilePage() {
     return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
   }
 
-  const getImageUrl = (image: string | null | undefined) => {
-    if (!image) return 'https://via.placeholder.com/200'
-    if (image.startsWith('http')) return image
-    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-    // Remove /api from end if present (for static files)
-    if (baseUrl.endsWith('/api')) {
-      baseUrl = baseUrl.replace(/\/api$/, '')
-    }
-    return `${baseUrl}${image}`
-  }
 
   if (loading) {
     return (

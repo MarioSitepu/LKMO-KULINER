@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { TrophyIcon, UsersIcon, StarIcon, MedalIcon, FlameIcon } from 'lucide-react'
 import { userAPI, recipeAPI } from '../services/api'
 import RecipeCard from '../components/RecipeCard'
+import { getImageUrl, getUserImageUrl } from '../utils/imageUtils'
 
 interface LeaderboardUser {
   id: string
@@ -91,27 +92,6 @@ export default function LeaderboardPage() {
     fetchData()
   }, [])
 
-  const getImageUrl = (image: string | null | undefined) => {
-    if (!image) return 'https://via.placeholder.com/400x300?text=No+Image'
-    if (image.startsWith('http')) return image
-    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-    // Remove /api from end if present (for static files)
-    if (baseUrl.endsWith('/api')) {
-      baseUrl = baseUrl.replace(/\/api$/, '')
-    }
-    return `${baseUrl}${image}`
-  }
-
-  const getImageUrlForUser = (image: string | null | undefined) => {
-    if (!image) return null
-    if (image.startsWith('http')) return image
-    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-    // Remove /api from end if present (for static files)
-    if (baseUrl.endsWith('/api')) {
-      baseUrl = baseUrl.replace(/\/api$/, '')
-    }
-    return `${baseUrl}${image}`
-  }
 
   const UserCard = ({ user, type }: { user: LeaderboardUser; type: 'popular' | 'most' | 'rating' }) => {
     const displayValue = () => {
@@ -125,7 +105,7 @@ export default function LeaderboardPage() {
       }
     }
 
-    const imageUrl = getImageUrlForUser(user.image)
+    const imageUrl = getUserImageUrl(user.image)
 
     const handleClick = () => {
       navigate(`/user/${user.id}`)
