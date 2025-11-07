@@ -196,8 +196,8 @@ export default function UploadRecipePage() {
         {/* Basic Info */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-bold mb-6">Informasi Dasar</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-2">
+          <div className="space-y-6">
+            <div>
               <label
                 htmlFor="title"
                 className="block text-sm font-medium text-gray-700 mb-1"
@@ -214,57 +214,59 @@ export default function UploadRecipePage() {
                 required
               />
             </div>
-            <div>
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Kategori*
-              </label>
-              <select
-                id="category"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-                required
-              >
-                <option value="">Pilih Kategori</option>
-                <option value="breakfast">Sarapan</option>
-                <option value="lunch">Makan Siang</option>
-                <option value="dinner">Makan Malam</option>
-                <option value="snack">Camilan</option>
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="prepTime"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Waktu Persiapan*
-              </label>
-              <div className="flex">
-                <input
-                  type="number"
-                  id="prepTime"
-                  value={formData.prepTime}
-                  onChange={(e) => setFormData({ ...formData, prepTime: e.target.value })}
-                  min="1"
-                  placeholder="15"
-                  className="w-full p-3 border border-gray-300 rounded-l-md focus:ring-green-500 focus:border-green-500"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Kategori*
+                </label>
+                <select
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                   required
-                />
-                <span className="inline-flex items-center px-4 bg-gray-100 border border-l-0 border-gray-300 rounded-r-md text-gray-500">
-                  menit
-                </span>
+                >
+                  <option value="">Pilih Kategori</option>
+                  <option value="breakfast">Sarapan</option>
+                  <option value="lunch">Makan Siang</option>
+                  <option value="dinner">Makan Malam</option>
+                  <option value="snack">Camilan</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="prepTime"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Waktu Persiapan*
+                </label>
+                <div className="flex">
+                  <input
+                    type="number"
+                    id="prepTime"
+                    value={formData.prepTime}
+                    onChange={(e) => setFormData({ ...formData, prepTime: e.target.value })}
+                    min="1"
+                    placeholder="15"
+                    className="flex-1 p-3 border border-gray-300 rounded-l-md focus:ring-green-500 focus:border-green-500"
+                    required
+                  />
+                  <span className="inline-flex items-center px-3 md:px-4 bg-gray-100 border border-l-0 border-gray-300 rounded-r-md text-gray-500 text-sm md:text-base whitespace-nowrap">
+                    menit
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Perkiraan Harga
               </label>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  <span className="px-3 py-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-gray-500">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-2">
+                <div className="flex items-center w-full sm:w-auto">
+                  <span className="px-3 py-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md text-gray-500 text-sm whitespace-nowrap">
                     Rp
                   </span>
                   <input
@@ -278,26 +280,28 @@ export default function UploadRecipePage() {
                     }}
                     placeholder="15"
                     min="0"
-                    className="w-24 p-3 border border-gray-300 rounded-r-md focus:ring-green-500 focus:border-green-500"
+                    className="flex-1 sm:w-24 p-3 border border-gray-300 rounded-r-md focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
-                <span className="text-gray-500">.</span>
-                <input
-                  type="text"
-                  id="priceThousands"
-                  value={formData.priceThousands}
-                  onChange={(e) => {
-                    // Only allow numbers, max 3 digits
-                    const value = e.target.value.replace(/[^\d]/g, '').slice(0, 3);
-                    setFormData({ ...formData, priceThousands: value });
-                  }}
-                  placeholder="000"
-                  maxLength={3}
-                  className="w-24 p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-                />
-                <span className="text-sm text-gray-500">
-                  (ribuan - opsional)
-                </span>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <span className="text-gray-500 hidden sm:inline">.</span>
+                  <input
+                    type="text"
+                    id="priceThousands"
+                    value={formData.priceThousands}
+                    onChange={(e) => {
+                      // Only allow numbers, max 3 digits
+                      const value = e.target.value.replace(/[^\d]/g, '').slice(0, 3);
+                      setFormData({ ...formData, priceThousands: value });
+                    }}
+                    placeholder="000"
+                    maxLength={3}
+                    className="w-24 p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                  />
+                  <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
+                    (ribuan - opsional)
+                  </span>
+                </div>
               </div>
               <p className="mt-1 text-xs text-gray-500">
                 Contoh: 15 dan 000 = Rp 15.000, atau hanya 15 = Rp 15
