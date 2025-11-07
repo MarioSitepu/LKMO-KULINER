@@ -4,6 +4,12 @@ import Recipe from '../models/Recipe.model.js';
 import Review from '../models/Review.model.js';
 import { authenticate, optionalAuth } from '../middleware/auth.middleware.js';
 import { uploadSingle } from '../middleware/upload.middleware.js';
+import {
+  uploadImageToSupabase,
+  deleteImageFromSupabase,
+  isSupabasePublicUrl,
+  deleteLegacyLocalFile,
+} from '../utils/storage.service.js';
 
 const router = express.Router();
 
@@ -403,15 +409,10 @@ router.post('/', authenticate, (req, res, next) => {
       }
     }).withMessage('Minimal 1 langkah diperlukan')
 ], async (req, res) => {
+  let uploadedImageResult = null;
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // Delete uploaded file if validation fails
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
-      // Log validation errors for debugging
       console.error('Validation errors:', errors.array());
       console.error('Request body:', {
         title: req.body.title,
@@ -438,7 +439,6 @@ router.post('/', authenticate, (req, res, next) => {
       price = ''
     } = req.body;
 
-    // Log for debugging
     console.log('Creating recipe with:', {
       title,
       category,
@@ -449,33 +449,27 @@ router.post('/', authenticate, (req, res, next) => {
       hasSteps: !!steps
     });
 
-    // Parse equipment - handle both JSON string and array
     let equipmentArray = [];
     try {
       if (!equipment || equipment === '' || equipment === '[]') {
-        // Empty equipment is allowed
         equipmentArray = [];
       } else if (Array.isArray(equipment)) {
         equipmentArray = equipment;
       } else if (typeof equipment === 'string') {
-        // Try to parse as JSON first
         try {
           const parsed = JSON.parse(equipment);
           if (Array.isArray(parsed)) {
             equipmentArray = parsed;
           } else {
-            // If not array after parsing, treat as comma-separated string
             equipmentArray = equipment.split(',').map(e => e.trim()).filter(e => e);
           }
         } catch {
-          // If JSON parse fails, treat as comma-separated string
           equipmentArray = equipment.split(',').map(e => e.trim()).filter(e => e);
         }
       }
-      // Normalize equipment array: trim each item and remove duplicates
+
       if (Array.isArray(equipmentArray)) {
         equipmentArray = equipmentArray.map(e => String(e).trim()).filter(e => e.length > 0);
-        // Remove duplicates while preserving order
         equipmentArray = [...new Set(equipmentArray)];
       } else {
         equipmentArray = [];
@@ -485,69 +479,66 @@ router.post('/', authenticate, (req, res, next) => {
       equipmentArray = [];
     }
 
-    // Parse ingredients and steps if they're strings
     let ingredientsArray;
     let stepsArray;
-    
+
     try {
-      ingredientsArray = Array.isArray(ingredients) 
-        ? ingredients 
+      ingredientsArray = Array.isArray(ingredients)
+        ? ingredients
         : JSON.parse(ingredients || '[]');
     } catch (err) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Format ingredients tidak valid. Harus berupa array JSON'
       });
     }
-    
+
     try {
-      stepsArray = Array.isArray(steps) 
-        ? steps 
+      stepsArray = Array.isArray(steps)
+        ? steps
         : JSON.parse(steps || '[]');
     } catch (err) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Format steps tidak valid. Harus berupa array JSON'
       });
     }
-    
-    // Validate arrays are not empty
+
     if (!ingredientsArray || ingredientsArray.length === 0) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Minimal 1 bahan diperlukan'
       });
     }
-    
+
     if (!stepsArray || stepsArray.length === 0) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Minimal 1 langkah diperlukan'
       });
     }
 
-    // Create recipe
+    if (req.file) {
+      try {
+        uploadedImageResult = await uploadImageToSupabase(req.file, {
+          folder: 'recipes',
+          userId: req.user?._id?.toString?.(),
+        });
+      } catch (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        return res.status(500).json({
+          success: false,
+          message: 'Gagal mengupload gambar ke storage',
+          error: uploadError.message,
+        });
+      }
+    }
+
     const recipe = await Recipe.create({
       title,
       category,
       prepTime: parseInt(prepTime),
-      image: req.file ? `/uploads/${req.file.filename}` : null,
+      image: uploadedImageResult?.publicUrl || null,
       equipment: equipmentArray,
       ingredients: ingredientsArray,
       steps: stepsArray,
@@ -564,18 +555,11 @@ router.post('/', authenticate, (req, res, next) => {
       data: { recipe: populatedRecipe }
     });
   } catch (error) {
-    // Delete uploaded file if error occurs
-    if (req.file) {
-      const fs = await import('fs');
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (unlinkErr) {
-        console.error('Error deleting uploaded file:', unlinkErr);
-      }
+    if (uploadedImageResult?.path) {
+      await deleteImageFromSupabase(uploadedImageResult.path);
     }
     console.error('Create recipe error:', error);
-    
-    // Handle mongoose validation errors
+
     if (error.name === 'ValidationError') {
       return res.status(400).json({
         success: false,
@@ -583,7 +567,7 @@ router.post('/', authenticate, (req, res, next) => {
         error: Object.values(error.errors).map(e => e.message).join(', ')
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error membuat resep',
@@ -627,13 +611,10 @@ router.put('/:id', authenticate, (req, res, next) => {
   body('category').optional().isIn(['breakfast', 'lunch', 'dinner', 'snack']),
   body('prepTime').optional().isInt({ min: 1 })
 ], async (req, res) => {
+  let uploadedImageResult = null;
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Validasi gagal',
@@ -644,36 +625,26 @@ router.put('/:id', authenticate, (req, res, next) => {
     const recipe = await Recipe.findById(req.params.id);
 
     if (!recipe) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(404).json({
         success: false,
         message: 'Resep tidak ditemukan'
       });
     }
 
-    // Check ownership
     if (recipe.author.toString() !== req.user._id.toString()) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(403).json({
         success: false,
         message: 'Anda tidak memiliki izin untuk mengedit resep ini'
       });
     }
 
-    // Update fields
     const updateFields = {};
     if (req.body.title) updateFields.title = req.body.title;
     if (req.body.category) updateFields.category = req.body.category;
     if (req.body.prepTime) updateFields.prepTime = parseInt(req.body.prepTime);
     if (req.body.equipment !== undefined) {
-      updateFields.equipment = Array.isArray(req.body.equipment) 
-        ? req.body.equipment 
+      updateFields.equipment = Array.isArray(req.body.equipment)
+        ? req.body.equipment
         : req.body.equipment.split(',').map(e => e.trim()).filter(e => e);
     }
     if (req.body.ingredients !== undefined) {
@@ -682,10 +653,6 @@ router.put('/:id', authenticate, (req, res, next) => {
           ? req.body.ingredients
           : JSON.parse(req.body.ingredients || '[]');
       } catch (err) {
-        if (req.file) {
-          const fs = await import('fs');
-          fs.unlinkSync(req.file.path);
-        }
         return res.status(400).json({
           success: false,
           message: 'Format ingredients tidak valid. Harus berupa array JSON'
@@ -698,10 +665,6 @@ router.put('/:id', authenticate, (req, res, next) => {
           ? req.body.steps
           : JSON.parse(req.body.steps || '[]');
       } catch (err) {
-        if (req.file) {
-          const fs = await import('fs');
-          fs.unlinkSync(req.file.path);
-        }
         return res.status(400).json({
           success: false,
           message: 'Format steps tidak valid. Harus berupa array JSON'
@@ -709,20 +672,25 @@ router.put('/:id', authenticate, (req, res, next) => {
       }
     }
     if (req.body.price !== undefined) updateFields.price = req.body.price;
+
     if (req.file) {
-      // Delete old image if exists
-      if (recipe.image) {
-        const fs = await import('fs');
-        const path = await import('path');
-        const filePath = path.join(process.cwd(), recipe.image);
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Error deleting old image:', err);
-        }
+      try {
+        uploadedImageResult = await uploadImageToSupabase(req.file, {
+          folder: 'recipes',
+          userId: req.user?._id?.toString?.(),
+        });
+        updateFields.image = uploadedImageResult.publicUrl;
+      } catch (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        return res.status(500).json({
+          success: false,
+          message: 'Gagal mengupload gambar ke storage',
+          error: uploadError.message,
+        });
       }
-      updateFields.image = `/uploads/${req.file.filename}`;
     }
+
+    const oldImage = recipe.image;
 
     const updatedRecipe = await Recipe.findByIdAndUpdate(
       req.params.id,
@@ -730,23 +698,25 @@ router.put('/:id', authenticate, (req, res, next) => {
       { new: true, runValidators: true }
     ).populate('author', 'name image');
 
+    if (uploadedImageResult?.path && oldImage) {
+      if (isSupabasePublicUrl(oldImage)) {
+        await deleteImageFromSupabase(oldImage);
+      } else {
+        await deleteLegacyLocalFile(oldImage);
+      }
+    }
+
     res.json({
       success: true,
       message: 'Resep berhasil diupdate',
       data: { recipe: updatedRecipe }
     });
   } catch (error) {
-    if (req.file) {
-      const fs = await import('fs');
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (unlinkErr) {
-        console.error('Error deleting uploaded file:', unlinkErr);
-      }
+    if (uploadedImageResult?.path) {
+      await deleteImageFromSupabase(uploadedImageResult.path);
     }
     console.error('Update recipe error:', error);
-    
-    // Handle mongoose validation errors
+
     if (error.name === 'ValidationError') {
       return res.status(400).json({
         success: false,
@@ -754,7 +724,7 @@ router.put('/:id', authenticate, (req, res, next) => {
         error: Object.values(error.errors).map(e => e.message).join(', ')
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error mengupdate resep',
@@ -785,15 +755,11 @@ router.delete('/:id', authenticate, async (req, res) => {
       });
     }
 
-    // Delete image if exists
     if (recipe.image) {
-      const fs = await import('fs');
-      const path = await import('path');
-      const filePath = path.join(process.cwd(), recipe.image);
-      try {
-        fs.unlinkSync(filePath);
-      } catch (err) {
-        console.error('Error deleting image:', err);
+      if (isSupabasePublicUrl(recipe.image)) {
+        await deleteImageFromSupabase(recipe.image);
+      } else {
+        await deleteLegacyLocalFile(recipe.image);
       }
     }
 

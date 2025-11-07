@@ -4,6 +4,12 @@ import User from '../models/User.model.js';
 import Recipe from '../models/Recipe.model.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { uploadSingle } from '../middleware/upload.middleware.js';
+import {
+  uploadImageToSupabase,
+  deleteImageFromSupabase,
+  isSupabasePublicUrl,
+  deleteLegacyLocalFile,
+} from '../utils/storage.service.js';
 
 const router = express.Router();
 
@@ -68,13 +74,10 @@ router.put('/profile', authenticate, uploadSingle, [
   body('bio').optional().trim().isLength({ max: 500 }),
   body('location').optional().trim()
 ], async (req, res) => {
+  let uploadedImageResult = null;
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      if (req.file) {
-        const fs = await import('fs');
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Validasi gagal',
@@ -86,19 +89,24 @@ router.put('/profile', authenticate, uploadSingle, [
     if (req.body.name) updateFields.name = req.body.name;
     if (req.body.bio !== undefined) updateFields.bio = req.body.bio;
     if (req.body.location !== undefined) updateFields.location = req.body.location;
+
+    const oldImage = req.user?.image;
+
     if (req.file) {
-      // Delete old image if exists
-      if (req.user.image) {
-        const fs = await import('fs');
-        const path = await import('path');
-        const filePath = path.join(process.cwd(), req.user.image);
-        try {
-          fs.unlinkSync(filePath);
-        } catch (err) {
-          console.error('Error deleting old image:', err);
-        }
+      try {
+        uploadedImageResult = await uploadImageToSupabase(req.file, {
+          folder: 'users',
+          userId: req.user?._id?.toString?.(),
+        });
+        updateFields.image = uploadedImageResult.publicUrl;
+      } catch (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        return res.status(500).json({
+          success: false,
+          message: 'Gagal mengupload gambar ke storage',
+          error: uploadError.message,
+        });
       }
-      updateFields.image = `/uploads/${req.file.filename}`;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -106,6 +114,14 @@ router.put('/profile', authenticate, uploadSingle, [
       updateFields,
       { new: true, runValidators: true }
     ).select('-password');
+
+    if (uploadedImageResult?.path && oldImage) {
+      if (isSupabasePublicUrl(oldImage)) {
+        await deleteImageFromSupabase(oldImage);
+      } else {
+        await deleteLegacyLocalFile(oldImage);
+      }
+    }
 
     res.json({
       success: true,
@@ -122,9 +138,8 @@ router.put('/profile', authenticate, uploadSingle, [
       }
     });
   } catch (error) {
-    if (req.file) {
-      const fs = await import('fs');
-      fs.unlinkSync(req.file.path);
+    if (uploadedImageResult?.path) {
+      await deleteImageFromSupabase(uploadedImageResult.path);
     }
     console.error('Update profile error:', error);
     res.status(500).json({

@@ -30,7 +30,13 @@ FRONTEND_URL=https://your-frontend-app.vercel.app
 
 # File Upload Configuration
 MAX_FILE_SIZE=5242880
+# (Opsional legacy) UPLOAD_PATH masih digunakan untuk development lokal
 UPLOAD_PATH=uploads
+
+# Supabase Storage (Wajib untuk penyimpanan gambar)
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_BUCKET=lkmo-images
 
 # Google OAuth (Optional - jika menggunakan Google Login)
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
@@ -62,11 +68,14 @@ EMAIL_FROM=your-email@gmail.com
 | 15 | `JWT_EXPIRE` | JWT expiry time | `7d` |
 | 18 | `FRONTEND_URL` | URL frontend untuk CORS | `https://...` |
 | 21 | `MAX_FILE_SIZE` | Max upload size (bytes) | `5242880` (5MB) |
-| 22 | `UPLOAD_PATH` | Folder uploads | `uploads` |
-| 25 | `GOOGLE_CLIENT_ID` | Google OAuth Client ID | `xxx.apps.googleusercontent.com` |
-| 28 | `EMAIL_USER` | Email untuk mengirim OTP (Gmail) | `your-email@gmail.com` |
-| 29 | `EMAIL_PASS` | Gmail App Password | `xxxx xxxx xxxx xxxx` |
-| 30 | `EMAIL_FROM` | Email pengirim | `your-email@gmail.com` |
+| 22 | `UPLOAD_PATH` | Folder uploads legacy (opsional) | `uploads` |
+| 23 | `SUPABASE_URL` | URL project Supabase | `https://xxx.supabase.co` |
+| 24 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key Supabase (server-side only) | `eyJhbGciOiJIUzI1NiIs...` |
+| 25 | `SUPABASE_BUCKET` | Nama bucket untuk gambar | `lkmo-images` |
+| 28 | `GOOGLE_CLIENT_ID` | Google OAuth Client ID | `xxx.apps.googleusercontent.com` |
+| 31 | `EMAIL_USER` | Email untuk mengirim OTP (Gmail) | `your-email@gmail.com` |
+| 32 | `EMAIL_PASS` | Gmail App Password | `xxxx xxxx xxxx xxxx` |
+| 33 | `EMAIL_FROM` | Email pengirim | `your-email@gmail.com` |
 
 ## ⚠️ Catatan Penting
 
@@ -119,7 +128,10 @@ Saat setup di Render, pastikan semua variable berikut sudah di-set:
 - [ ] `JWT_EXPIRE=7d`
 - [ ] `FRONTEND_URL` (set setelah frontend deploy)
 - [ ] `MAX_FILE_SIZE=5242880`
-- [ ] `UPLOAD_PATH=uploads`
+- [ ] `SUPABASE_URL`
+- [ ] `SUPABASE_SERVICE_ROLE_KEY`
+- [ ] `SUPABASE_BUCKET`
+- [ ] `UPLOAD_PATH=uploads` (opsional, legacy)
 - [ ] `GOOGLE_CLIENT_ID` (jika menggunakan Google login)
 - [ ] `EMAIL_USER` (untuk reset password via Gmail)
 - [ ] `EMAIL_PASS` (Gmail App Password)
