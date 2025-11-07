@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CookingPotIcon } from 'lucide-react'
+import logo from '../assets/logo.png'
 
 export default function Footer() {
   return (
@@ -10,7 +10,7 @@ export default function Footer() {
           {/* Brand Logo */}
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
-              <CookingPotIcon size={20} className="text-orange-500" />
+              <img src={logo} alt="Logo" className="h-5 w-5 object-contain" />
               <h1 className="text-lg font-bold text-orange-500">
                 YangPentingMakan
               </h1>
