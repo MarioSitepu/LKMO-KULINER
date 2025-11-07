@@ -5,6 +5,7 @@ import RecipeCard from '../components/RecipeCard'
 import { userAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getImageUrl } from '../utils/imageUtils'
+import defaultAvatar from '../assets/default-avatar.svg'
 
 interface Recipe {
   _id: string
@@ -93,9 +94,14 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-end -mt-16 mb-4 gap-4">
             <div className="relative">
               <img
-                src={getImageUrl(profile?.image)}
+                src={getImageUrl(profile?.image, defaultAvatar)}
                 alt={profile?.name || 'User'}
                 className="w-24 h-24 rounded-full border-4 border-white object-cover"
+                onError={(event) => {
+                  const target = event.currentTarget
+                  target.onerror = null
+                  target.src = defaultAvatar
+                }}
               />
             </div>
             <div className="flex-1">
@@ -200,7 +206,7 @@ export default function ProfilePage() {
                     key={recipe._id || recipe.id}
                     id={recipe._id || recipe.id || ''}
                     title={recipe.title}
-                    image={getImageUrl(recipe.image)}
+                    image={recipe.image}
                     rating={recipe.rating || 0}
                     prepTime={`${recipe.prepTime} menit`}
                     equipment={recipe.equipment || []}
@@ -236,7 +242,7 @@ export default function ProfilePage() {
                     key={recipe._id || recipe.id}
                     id={recipe._id || recipe.id || ''}
                     title={recipe.title}
-                    image={getImageUrl(recipe.image)}
+                    image={recipe.image}
                     rating={recipe.rating || 0}
                     prepTime={`${recipe.prepTime} menit`}
                     equipment={recipe.equipment || []}

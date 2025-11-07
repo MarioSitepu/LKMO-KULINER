@@ -1,0 +1,21 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="plateGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7cc774" />
+      <stop offset="100%" stop-color="#4ba151" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="48" fill="#f0fdf4" />
+  <g transform="translate(80 120)">
+    <rect x="0" y="0" width="352" height="240" rx="28" fill="url(#plateGradient)" />
+    <rect x="24" y="32" width="304" height="176" rx="20" fill="#ffffff" fill-opacity="0.85" />
+    <circle cx="176" cy="120" r="68" fill="#7cc774" opacity="0.25" />
+    <path d="M130 140c28 32 64 32 92 0" stroke="#4ba151" stroke-width="16" stroke-linecap="round" fill="none" />
+    <path d="M148 108c0 14-10 24-22 24s-22-10-22-24" stroke="#4ba151" stroke-width="12" stroke-linecap="round" fill="none" />
+    <path d="M254 108c0 14-10 24-22 24s-22-10-22-24" stroke="#4ba151" stroke-width="12" stroke-linecap="round" fill="none" />
+  </g>
+  <text x="50%" y="420" text-anchor="middle" font-family="'Poppins', 'Segoe UI', sans-serif" font-size="40" font-weight="600" fill="#166534">
+    Resep Praktis
+  </text>
+</svg>
+

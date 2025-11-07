@@ -10,7 +10,6 @@ import {
 } from 'lucide-react'
 import RecipeCard from '../components/RecipeCard'
 import { recipeAPI } from '../services/api'
-import { getImageUrl } from '../utils/imageUtils'
 
 interface Recipe {
   _id: string
@@ -230,7 +229,7 @@ export default function SearchPage() {
                   key={recipe._id}
                   id={recipe._id}
                   title={recipe.title}
-                  image={getImageUrl(recipe.image)}
+                  image={recipe.image}
                   rating={recipe.rating || 0}
                   prepTime={`${recipe.prepTime} menit`}
                   equipment={recipe.equipment || []}

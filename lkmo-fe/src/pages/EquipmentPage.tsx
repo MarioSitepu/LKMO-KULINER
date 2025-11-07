@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import { recipeAPI } from '../services/api'
-import { getImageUrl } from '../utils/imageUtils'
 
 const EQUIPMENT_TYPES = {
   'rice-cooker': {
@@ -173,7 +172,7 @@ export default function EquipmentPage() {
                 key={recipe._id || recipe.id}
                 id={recipe._id || recipe.id || ''}
                 title={recipe.title}
-                image={getImageUrl(recipe.image)}
+                image={recipe.image}
                 rating={recipe.rating || 0}
                 prepTime={`${recipe.prepTime} menit`}
                 equipment={recipe.equipment || []}

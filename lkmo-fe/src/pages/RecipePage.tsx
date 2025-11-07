@@ -10,6 +10,8 @@ import {
 import { recipeAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getImageUrl } from '../utils/imageUtils'
+import defaultRecipeImage from '../assets/default-recipe.svg'
+import defaultAvatar from '../assets/default-avatar.svg'
 
 interface Review {
   _id?: string
@@ -97,7 +99,7 @@ export default function RecipePage() {
       setLoading(false)
     }
   }
-  
+
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -202,7 +204,9 @@ export default function RecipePage() {
       </div>
     )
   }
-  
+
+  const recipeImageSrc = getImageUrl(recipe.image, defaultRecipeImage)
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* Recipe Header */}
@@ -268,9 +272,14 @@ export default function RecipePage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <img
-              src={getImageUrl(recipe.author.image)}
+              src={getImageUrl(recipe.author.image, defaultAvatar)}
               alt={recipe.author.name}
               className="w-10 h-10 rounded-full mr-3 object-cover"
+              onError={(event) => {
+                const target = event.currentTarget
+                target.onerror = null
+                target.src = defaultAvatar
+              }}
             />
             <div>
               <p className="font-medium">{recipe.author.name}</p>
@@ -283,15 +292,18 @@ export default function RecipePage() {
       </div>
 
       {/* Recipe Image */}
-      {recipe.image && (
-        <div className="rounded-xl overflow-hidden mb-8">
-          <img
-            src={getImageUrl(recipe.image)}
-            alt={recipe.title}
-            className="w-full h-auto max-h-96 object-cover"
-          />
-        </div>
-      )}
+      <div className="rounded-xl overflow-hidden mb-8">
+        <img
+          src={recipeImageSrc}
+          alt={recipe.title}
+          className="w-full h-auto max-h-96 object-cover"
+          onError={(event) => {
+            const target = event.currentTarget
+            target.onerror = null
+            target.src = defaultRecipeImage
+          }}
+        />
+      </div>
 
       {/* Recipe Content */}
       <div className="grid md:grid-cols-3 gap-8">
@@ -435,9 +447,14 @@ export default function RecipePage() {
               <div key={review._id} className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex items-start">
                   <img
-                    src={getImageUrl(review.user.image)}
+                    src={getImageUrl(review.user.image, defaultAvatar)}
                     alt={review.user.name}
                     className="w-10 h-10 rounded-full mr-3 object-cover"
+                    onError={(event) => {
+                      const target = event.currentTarget
+                      target.onerror = null
+                      target.src = defaultAvatar
+                    }}
                   />
                   <div className="flex-1">
                     <div className="flex justify-between items-start mb-2">

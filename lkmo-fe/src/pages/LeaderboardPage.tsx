@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { TrophyIcon, UsersIcon, StarIcon, MedalIcon, FlameIcon } from 'lucide-react'
 import { userAPI, recipeAPI } from '../services/api'
 import RecipeCard from '../components/RecipeCard'
-import { getImageUrl, getUserImageUrl } from '../utils/imageUtils'
+import { getUserImageUrl } from '../utils/imageUtils'
+import defaultAvatar from '../assets/default-avatar.svg'
 
 interface LeaderboardUser {
   id: string
@@ -105,7 +106,7 @@ export default function LeaderboardPage() {
       }
     }
 
-    const imageUrl = getUserImageUrl(user.image)
+    const imageUrl = getUserImageUrl(user.image, defaultAvatar) || defaultAvatar
 
     const handleClick = () => {
       navigate(`/user/${user.id}`)
@@ -123,17 +124,16 @@ export default function LeaderboardPage() {
         </div>
         <div className="flex-1 flex items-center gap-3">
           <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={user.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-green-200 text-green-600 font-semibold">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <img
+              src={imageUrl}
+              alt={user.name}
+              className="w-full h-full object-cover"
+              onError={(event) => {
+                const target = event.currentTarget
+                target.onerror = null
+                target.src = defaultAvatar
+              }}
+            />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-800 truncate">{user.name}</h3>
@@ -287,7 +287,7 @@ export default function LeaderboardPage() {
                 key={recipe._id}
                 id={recipe._id}
                 title={recipe.title}
-                image={getImageUrl(recipe.image)}
+                image={recipe.image}
                 rating={recipe.rating || 0}
                 prepTime={`${recipe.prepTime} menit`}
                 equipment={recipe.equipment || []}

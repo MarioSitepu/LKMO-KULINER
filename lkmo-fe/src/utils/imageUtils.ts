@@ -73,8 +73,11 @@ export const getImageUrl = (image: string | null | undefined, placeholder?: stri
 /**
  * Utility function khusus untuk gambar user (bisa return null)
  */
-export const getUserImageUrl = (image: string | null | undefined): string | null => {
-  if (!image) return null
+export const getUserImageUrl = (
+  image: string | null | undefined,
+  placeholder?: string,
+): string | null => {
+  if (!image) return placeholder || null
   if (image.startsWith('http://') || image.startsWith('https://')) {
     return image
   }

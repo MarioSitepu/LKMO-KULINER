@@ -165,7 +165,7 @@ export default function HomePage() {
                 key={recipe._id}
                 id={recipe._id}
                 title={recipe.title}
-                image={getImageUrl(recipe.image)}
+                image={recipe.image}
                 rating={recipe.rating || 0}
                 prepTime={`${recipe.prepTime} menit`}
                 equipment={recipe.equipment || []}

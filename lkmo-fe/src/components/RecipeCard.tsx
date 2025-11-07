@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import { StarIcon, ClockIcon, TagIcon } from 'lucide-react'
+import { getImageUrl } from '../utils/imageUtils'
+import defaultRecipeImage from '../assets/default-recipe.svg'
 
 interface RecipeCardProps {
   id: string
   title: string
-  image: string
+  image?: string | null
   rating: number
   prepTime: string
   equipment: string[]
@@ -26,7 +28,16 @@ const RecipeCard = ({
     <Link to={`/recipe/${id}`} className="block h-full">
       <div className="h-full bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
         <div className="relative h-48 overflow-hidden">
-          <img src={image} alt={title} className="w-full h-full object-cover" />
+          <img
+            src={getImageUrl(image, defaultRecipeImage)}
+            alt={title}
+            className="w-full h-full object-cover"
+            onError={(event) => {
+              const target = event.currentTarget
+              target.onerror = null
+              target.src = defaultRecipeImage
+            }}
+          />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
             <div className="flex items-center">
               <StarIcon size={16} className="text-yellow-400 fill-yellow-400" />
