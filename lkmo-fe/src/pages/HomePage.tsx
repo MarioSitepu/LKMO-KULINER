@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import { recipeAPI } from '../services/api'
 import { getImageUrl } from '../utils/imageUtils'
+import breakfastCategoryImage from '../assets/categories/Breakfast.jpg'
+import lunchCategoryImage from '../assets/categories/Lunch.jpg'
+import dinnerCategoryImage from '../assets/categories/Dinner.jpg'
+import snacksCategoryImage from '../assets/categories/Snacks.jpg'
 
 interface Recipe {
   _id: string
@@ -30,6 +34,14 @@ export default function HomePage() {
   const [popularCategories, setPopularCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const fallbackCategoryImages: Record<string, string> = {
+    breakfast: breakfastCategoryImage,
+    lunch: lunchCategoryImage,
+    dinner: dinnerCategoryImage,
+    snack: snacksCategoryImage,
+    snacks: snacksCategoryImage,
+  }
 
   useEffect(() => {
     loadData()
@@ -112,9 +124,6 @@ export default function HomePage() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Kategori Populer</h2>
-          <Link to="/category/breakfast" className="text-green-500 hover:underline">
-            Lihat Semua
-          </Link>
         </div>
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
@@ -123,14 +132,21 @@ export default function HomePage() {
         )}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {popularCategories.length > 0 ? (
-            popularCategories.map((category, index) => (
+            popularCategories.map((category, index) => {
+              const categoryKey = (category.path?.split('/').pop() || category.name || '')
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+              const fallbackImage = fallbackCategoryImages[categoryKey]
+              const imageSrc = fallbackImage || getImageUrl(category.image)
+
+              return (
               <Link
                 key={index}
                 to={category.path}
                 className="relative rounded-lg overflow-hidden h-32 group"
               >
                 <img
-                  src={getImageUrl(category.image)}
+                    src={imageSrc}
                   alt={category.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -141,7 +157,8 @@ export default function HomePage() {
                   </h3>
                 </div>
               </Link>
-            ))
+              )
+            })
           ) : (
             <div className="col-span-4 text-center text-gray-500 py-8">
               Belum ada kategori
@@ -154,7 +171,7 @@ export default function HomePage() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Resep Terbaru</h2>
-          <Link to="/category/breakfast" className="text-green-500 hover:underline">
+          <Link to="/search?show=all" className="text-green-500 hover:underline">
             Lihat Semua
           </Link>
         </div>

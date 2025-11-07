@@ -1,6 +1,7 @@
 // src/pages/SearchPage.tsx
 
 import { useState, type KeyboardEvent, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   SearchIcon,
   FilterIcon,
@@ -41,6 +42,7 @@ const PRICE_MAP: Record<string, string> = {
 }
 
 export default function SearchPage() {
+  const location = useLocation()
   const [searchTerm, setSearchTerm] = useState('')
   const [searchedKeyword, setSearchedKeyword] = useState('') // Keyword yang digunakan untuk pencarian terakhir
   const [showFilters, setShowFilters] = useState(true)
@@ -111,6 +113,27 @@ export default function SearchPage() {
     }
   }
 
+  const fetchAllRecipes = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await recipeAPI.getAll({ limit: 100 })
+      if (response.success && response.data?.recipes) {
+        setResults(response.data.recipes)
+        setSearchedKeyword('Semua Resep')
+      } else {
+        setResults([])
+        setSearchedKeyword('Semua Resep')
+      }
+    } catch (err: any) {
+      console.error('Error loading recipes:', err)
+      setError(err.response?.data?.message || 'Gagal memuat resep')
+      setResults([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Fungsi untuk menangani penekanan tombol 'Enter'
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -135,6 +158,18 @@ export default function SearchPage() {
     setSelectedEquipment([])
     setResults(null)
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('show') === 'all') {
+      setSelectedCategory('')
+      setSelectedPrice('')
+      setSelectedEquipment([])
+      setSearchTerm('')
+      fetchAllRecipes()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search])
 
 
   return (
