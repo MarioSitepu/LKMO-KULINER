@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { MapPin } from 'lucide-react'
 import RecipeCard from '../components/RecipeCard'
 import { userAPI } from '../services/api'
-import { getImageUrl } from '../utils/imageUtils'
+import { getImageUrl, getLegacyUserImageUrl } from '../utils/imageUtils'
 import defaultAvatar from '../assets/default-avatar.svg'
 
 interface Recipe {
@@ -108,10 +108,17 @@ export default function UserProfilePage() {
             <div className="relative">
               <img
                 src={getImageUrl(profile?.image, defaultAvatar)}
+                data-legacy-src={getLegacyUserImageUrl(profile?.image) || undefined}
                 alt={profile?.name || 'User'}
                 className="w-24 h-24 rounded-full border-4 border-white object-cover"
                 onError={(event) => {
                   const target = event.currentTarget
+                  const legacySrc = target.dataset.legacySrc
+                  if (legacySrc && !target.dataset.legacyTried) {
+                    target.dataset.legacyTried = 'true'
+                    target.src = legacySrc
+                    return
+                  }
                   target.onerror = null
                   target.src = defaultAvatar
                 }}

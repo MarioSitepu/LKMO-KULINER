@@ -1,6 +1,6 @@
 import { useState, type FormEvent, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { CookingPotIcon, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { initializeGoogleSignIn, triggerGoogleSignIn } from '../utils/googleAuth'
 
@@ -93,7 +93,7 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <Link to="/" className="flex items-center gap-2">
-            <CookingPotIcon size={32} className="text-green-500" />
+            <img src="/buku.svg" alt="YangPentingMakan" className="h-10 w-10 object-contain" />
             <h1 className="text-2xl font-bold text-green-500">
               YangPentingMakan
             </h1>

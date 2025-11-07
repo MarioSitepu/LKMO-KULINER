@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { recipeAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getImageUrl } from '../utils/imageUtils'
+import { getImageUrl, getLegacyApiImageUrl, getLegacyUserImageUrl } from '../utils/imageUtils'
 import defaultRecipeImage from '../assets/default-recipe.svg'
 import defaultAvatar from '../assets/default-avatar.svg'
 
@@ -206,6 +206,7 @@ export default function RecipePage() {
   }
 
   const recipeImageSrc = getImageUrl(recipe.image, defaultRecipeImage)
+  const legacyRecipeImageSrc = getLegacyApiImageUrl(recipe.image)
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -273,10 +274,17 @@ export default function RecipePage() {
           <div className="flex items-center">
             <img
               src={getImageUrl(recipe.author.image, defaultAvatar)}
+              data-legacy-src={getLegacyUserImageUrl(recipe.author.image) || undefined}
               alt={recipe.author.name}
               className="w-10 h-10 rounded-full mr-3 object-cover"
               onError={(event) => {
                 const target = event.currentTarget
+                const legacySrc = target.dataset.legacySrc
+                if (legacySrc && !target.dataset.legacyTried) {
+                  target.dataset.legacyTried = 'true'
+                  target.src = legacySrc
+                  return
+                }
                 target.onerror = null
                 target.src = defaultAvatar
               }}
@@ -295,10 +303,17 @@ export default function RecipePage() {
       <div className="rounded-xl overflow-hidden mb-8">
         <img
           src={recipeImageSrc}
+          data-legacy-src={legacyRecipeImageSrc || undefined}
           alt={recipe.title}
           className="w-full h-auto max-h-96 object-cover"
           onError={(event) => {
             const target = event.currentTarget
+            const legacySrc = target.dataset.legacySrc
+            if (legacySrc && !target.dataset.legacyTried) {
+              target.dataset.legacyTried = 'true'
+              target.src = legacySrc
+              return
+            }
             target.onerror = null
             target.src = defaultRecipeImage
           }}
@@ -448,10 +463,17 @@ export default function RecipePage() {
                 <div className="flex items-start">
                   <img
                     src={getImageUrl(review.user.image, defaultAvatar)}
+                    data-legacy-src={getLegacyUserImageUrl(review.user.image) || undefined}
                     alt={review.user.name}
                     className="w-10 h-10 rounded-full mr-3 object-cover"
                     onError={(event) => {
                       const target = event.currentTarget
+                      const legacySrc = target.dataset.legacySrc
+                      if (legacySrc && !target.dataset.legacyTried) {
+                        target.dataset.legacyTried = 'true'
+                        target.src = legacySrc
+                        return
+                      }
                       target.onerror = null
                       target.src = defaultAvatar
                     }}

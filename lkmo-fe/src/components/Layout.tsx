@@ -16,7 +16,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Footer from './footer'
-import logo from '../assets/logo.png'
 
 export default function Layout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -56,7 +55,7 @@ export default function Layout() {
           {/* ... (Logo tetap sama) ... */}
           <div className="flex items-center justify-center py-6 border-b border-green-100">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Logo" className="h-6 w-6 object-contain" />
+              <img src="/buku.svg" alt="Logo" className="h-6 w-6 object-contain" />
               <h1 className="text-xl font-bold text-green-500">
                 YangPentingMakan
               </h1>

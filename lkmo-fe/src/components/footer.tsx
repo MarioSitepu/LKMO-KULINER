@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import logo from '../assets/logo.png'
 
 export default function Footer() {
   return (
@@ -10,7 +9,7 @@ export default function Footer() {
           {/* Brand Logo */}
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Logo" className="h-5 w-5 object-contain" />
+              <img src="/buku.svg" alt="Logo" className="h-5 w-5 object-contain" />
               <h1 className="text-lg font-bold text-green-500">
                 YangPentingMakan
               </h1>

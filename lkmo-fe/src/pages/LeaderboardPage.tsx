@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { TrophyIcon, UsersIcon, StarIcon, MedalIcon, FlameIcon } from 'lucide-react'
 import { userAPI, recipeAPI } from '../services/api'
 import RecipeCard from '../components/RecipeCard'
-import { getUserImageUrl } from '../utils/imageUtils'
+import { getUserImageUrl, getLegacyUserImageUrl } from '../utils/imageUtils'
 import defaultAvatar from '../assets/default-avatar.svg'
 
 interface LeaderboardUser {
@@ -107,6 +107,7 @@ export default function LeaderboardPage() {
     }
 
     const imageUrl = getUserImageUrl(user.image, defaultAvatar) || defaultAvatar
+    const legacyImageUrl = getLegacyUserImageUrl(user.image)
     const displayName = user.name.length > 18 ? `${user.name.slice(0, 18)}…` : user.name
 
     const handleClick = () => {
@@ -127,10 +128,17 @@ export default function LeaderboardPage() {
           <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
             <img
               src={imageUrl}
+              data-legacy-src={legacyImageUrl || undefined}
               alt={user.name}
               className="w-full h-full object-cover"
               onError={(event) => {
                 const target = event.currentTarget
+                const legacySrc = target.dataset.legacySrc
+                if (legacySrc && !target.dataset.legacyTried) {
+                  target.dataset.legacyTried = 'true'
+                  target.src = legacySrc
+                  return
+                }
                 target.onerror = null
                 target.src = defaultAvatar
               }}

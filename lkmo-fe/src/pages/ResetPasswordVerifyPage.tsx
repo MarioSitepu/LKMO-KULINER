@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { CookingPotIcon, ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft, Clock } from 'lucide-react';
 import { passwordResetAPI } from '../services/api';
 
 export default function ResetPasswordVerifyPage() {
@@ -80,7 +80,7 @@ export default function ResetPasswordVerifyPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <Link to="/" className="flex items-center gap-2">
-            <CookingPotIcon size={32} className="text-green-500" />
+            <img src="/buku.svg" alt="YangPentingMakan" className="h-10 w-10 object-contain" />
             <h1 className="text-2xl font-bold text-green-500">
               YangPentingMakan
             </h1>

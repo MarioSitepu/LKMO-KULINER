@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { StarIcon, ClockIcon, TagIcon } from 'lucide-react'
-import { getImageUrl } from '../utils/imageUtils'
+import { getImageUrl, getLegacyApiImageUrl } from '../utils/imageUtils'
 import defaultRecipeImage from '../assets/default-recipe.svg'
 
 interface RecipeCardProps {
@@ -30,10 +30,17 @@ const RecipeCard = ({
         <div className="relative h-48 overflow-hidden">
           <img
             src={getImageUrl(image, defaultRecipeImage)}
+            data-legacy-src={getLegacyApiImageUrl(image) || undefined}
             alt={title}
             className="w-full h-full object-cover"
             onError={(event) => {
               const target = event.currentTarget
+              const legacySrc = target.dataset.legacySrc
+              if (legacySrc && !target.dataset.legacyTried) {
+                target.dataset.legacyTried = 'true'
+                target.src = legacySrc
+                return
+              }
               target.onerror = null
               target.src = defaultRecipeImage
             }}
