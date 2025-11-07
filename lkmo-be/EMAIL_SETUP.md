@@ -53,7 +53,22 @@ SMTP_PASS=your-password
 EMAIL_FROM=noreply@yourdomain.com
 ```
 
-## Opsi 3: Development Mode (Tanpa Email)
+## Opsi 3: Resend (Direkomendasikan untuk Deploy Cepat)
+
+1. Daftar di [Resend](https://resend.com) dan verifikasi domain pengirim (mis. `noreply@domainkamu.com`).
+2. Buat API key baru di dashboard Resend.
+3. Set environment variables berikut di Render:
+   ```env
+   RESEND_API_KEY=re_xxxxxxxxxxxxxxxxx
+   RESEND_FROM_EMAIL=YangPentingMakan <noreply@domainkamu.com>
+   # Opsional jika ingin balasan masuk ke alamat berbeda
+   # RESEND_REPLY_TO=support@domainkamu.com
+   ```
+4. Klik **Save Changes** lalu **Restart** service backend.
+
+Backend akan otomatis memakai Resend jika `RESEND_API_KEY` tersedia, tanpa perlu konfigurasi SMTP tambahan.
+
+## Opsi 4: Development Mode (Tanpa Email)
 
 Untuk development, jika tidak ingin setup email, sistem akan menampilkan OTP di console:
 
@@ -108,6 +123,11 @@ SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your-username
 SMTP_PASS=your-password
+
+# Atau gunakan Resend
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxx
+RESEND_FROM_EMAIL=Nama App <noreply@domainkamu.com>
+RESEND_REPLY_TO=support@domainkamu.com
 ```
 
 ## Production

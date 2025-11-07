@@ -107,7 +107,6 @@ LKMO Recipes adalah aplikasi web full-stack untuk berbagi resep makanan. Penggun
 - ✅ Detail resep lengkap
 
 ### Social Features
-- ✅ Follow/Unfollow user
 - ✅ Save/Unsave resep
 - ✅ Rating sistem (1-5 bintang)
 - ✅ Review dan komentar
@@ -128,7 +127,7 @@ LKMO Recipes adalah aplikasi web full-stack untuk berbagi resep makanan. Penggun
 - Lihat detail resep lengkap beserta rating, ulasan komunitas, serta simpan resep favorit untuk akses cepat.
 - Upload resep pribadi dengan gambar, bahan, langkah, peralatan, dan estimasi harga yang rapi.
 - Kelola profil pribadi: foto, bio, lokasi, serta pantau statistik jumlah resep dan resep tersimpan.
-- Ikuti kreator lain, lihat resep mereka, dan berpartisipasi dalam ulasan untuk meningkatkan visibilitas.
+- Melihat kreator lain di leaderboard, ihat resep mereka, dan berpartisipasi dalam ulasan untuk meningkatkan visibilitas.
 - Gunakan leaderboard untuk mencari kreator terbaik dan inspirasi resep hemat.
 - Reset password melalui OTP atau lanjutkan dengan login Google secara instan.
 
@@ -276,6 +275,40 @@ UPLOAD_PATH=uploads
 # Google OAuth (Optional)
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ```
+
+### Supabase Storage Setup
+
+Ikuti langkah berikut untuk menghubungkan penyimpanan gambar ke Supabase:
+
+1. **Buat proyek Supabase**
+   - Masuk ke [https://supabase.com/](https://supabase.com/) dan klik *New project*.
+   - Pilih organisasi, masukkan nama proyek, serta set password database (catat untuk backup).
+   - Setelah proyek selesai dibuat, buka tab *Project Settings* → *General* untuk menemukan `Project URL`.
+
+2. **Dapatkan Service Role Key**
+   - Buka *Project Settings* → *API*.
+   - Salin **Project URL** (format `https://xxxx.supabase.co`) dan **Service Role Key** (gunakan untuk server-side saja).
+
+3. **Buat bucket storage**
+   - Pergi ke menu *Storage* → *Buckets* → *Create bucket*.
+   - Nama disarankan `lkmo-images` (atau sesuaikan, tetapi gunakan nama yang sama dengan environment variable `SUPABASE_BUCKET`).
+   - Aktifkan opsi **Public bucket** agar URL gambar bisa diakses frontend.
+
+4. **Isi environment variable backend**
+   - Di file `.env` lokal backend (atau di Render setelah deploy) pastikan tiga variable ini ter-set:
+     ```env
+     SUPABASE_URL=https://project-id.supabase.co
+     SUPABASE_SERVICE_ROLE_KEY=service-role-key-dari-dashboard
+     SUPABASE_BUCKET=lkmo-images
+     ```
+   - Jika menggunakan nama bucket berbeda, pastikan nilainya sama di sini dan saat membuat bucket.
+
+5. **Restart backend**
+   - Hentikan dan jalankan ulang `npm run dev` (lokal) atau klik *Restart* di Render setelah menyimpan environment variable.
+
+6. **Uji unggah gambar**
+   - Login ke aplikasi, buka halaman `Upload Resep`, unggah gambar baru, lalu pastikan gambar tampil di halaman detail resep.
+   - Jika masih gagal, cek log backend; error terkait Supabase biasanya muncul bila variable belum terisi atau bucket belum public.
 
 ### Frontend Configuration
 

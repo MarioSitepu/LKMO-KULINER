@@ -44,10 +44,12 @@ router.post('/request', [
 
     const { email } = req.body;
     const normalizedEmail = email.toLowerCase().trim();
+    console.log(`[OTP] Request diterima untuk ${normalizedEmail}`);
 
     // Check if user exists
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
+      console.log(`[OTP] Email ${normalizedEmail} tidak terdaftar - tidak mengirim OTP`);
       // Don't reveal if user exists or not (security best practice)
       return res.json({
         success: true,
@@ -120,7 +122,8 @@ router.post('/request', [
 
     // Send OTP email
     try {
-      await sendOTPEmail(normalizedEmail, otpCode);
+      const sendResult = await sendOTPEmail(normalizedEmail, otpCode);
+      console.log(`[OTP] Email OTP dikirim ke ${normalizedEmail} via ${sendResult.provider}`);
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
       // In development, still return success

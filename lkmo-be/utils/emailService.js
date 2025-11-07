@@ -1,4 +1,11 @@
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const hasResend = Boolean(process.env.RESEND_API_KEY && (process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM));
+const resendClient = hasResend ? new Resend(process.env.RESEND_API_KEY) : null;
+
+const getDefaultFromEmail = () =>
+  process.env.EMAIL_FROM || process.env.RESEND_FROM_EMAIL || process.env.EMAIL_USER || 'noreply@lkmo.com';
 
 // Create transporter
 const createTransporter = () => {
@@ -25,12 +32,58 @@ const createTransporter = () => {
   }
 };
 
+const sendWithResend = async ({ to, subject, html, text }) => {
+  if (!resendClient) {
+    throw new Error('Resend client is not configured');
+  }
+
+  const from = process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM;
+  if (!from) {
+    throw new Error('RESEND_FROM_EMAIL belum di-set');
+  }
+
+  const result = await resendClient.emails.send({
+    from,
+    to,
+    subject,
+    html,
+    text,
+    reply_to: process.env.RESEND_REPLY_TO || undefined
+  });
+
+  console.log('Email sent via Resend:', result.id);
+  return { success: true, messageId: result.id, provider: 'resend' };
+};
+
+const sendWithNodemailer = async ({ to, subject, html, text }) => {
+  const transporter = createTransporter();
+  const mailOptions = {
+    from: getDefaultFromEmail(),
+    to,
+    subject,
+    html,
+    text
+  };
+
+  const info = await transporter.sendMail(mailOptions);
+  console.log('Email sent via Nodemailer:', info.messageId);
+  return { success: true, messageId: info.messageId, provider: 'smtp' };
+};
+
+const sendEmail = async (payload) => {
+  console.log(
+    `[Email] Preparing to send via ${resendClient ? 'Resend' : 'SMTP'} to ${payload.to} | subject: ${payload.subject}`
+  );
+  if (resendClient) {
+    return sendWithResend(payload);
+  }
+
+  return sendWithNodemailer(payload);
+};
+
 export const sendOTPEmail = async (email, otpCode) => {
   try {
-    const transporter = createTransporter();
-
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@lkmo.com',
       to: email,
       subject: 'Reset Password - Kode OTP',
       html: `
@@ -81,9 +134,8 @@ export const sendOTPEmail = async (email, otpCode) => {
       `
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    const result = await sendEmail(mailOptions);
+    return result;
   } catch (error) {
     console.error('Error sending email:', error);
     // In development, log the OTP instead of failing
@@ -123,10 +175,7 @@ export const sendPasswordResetNotification = async (adminEmail, userEmail, userN
   }
 
   try {
-    const transporter = createTransporter();
-
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@lkmo.com',
       to: adminEmail,
       subject: 'Notifikasi: User Reset Password',
       html: `
@@ -149,7 +198,7 @@ export const sendPasswordResetNotification = async (adminEmail, userEmail, userN
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
     console.log(`[Admin Notification] Successfully sent to ${adminEmail}`);
     return { success: true };
   } catch (error) {

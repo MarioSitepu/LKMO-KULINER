@@ -55,6 +55,11 @@ EMAIL_FROM=your-email@gmail.com
 # SMTP_USER=apikey
 # SMTP_PASS=your-sendgrid-api-key
 # EMAIL_FROM=noreply@yourdomain.com
+
+# Opsi 3: Resend (Recommended untuk Production Cepat)
+# RESEND_API_KEY=re_your_api_key
+# RESEND_FROM_EMAIL=YangPentingMakan <noreply@yourdomain.com>
+# RESEND_REPLY_TO=support@yourdomain.com
 ```
 
 ## 📋 Penjelasan Variable (Baris 5-20)
@@ -76,6 +81,8 @@ EMAIL_FROM=your-email@gmail.com
 | 31 | `EMAIL_USER` | Email untuk mengirim OTP (Gmail) | `your-email@gmail.com` |
 | 32 | `EMAIL_PASS` | Gmail App Password | `xxxx xxxx xxxx xxxx` |
 | 33 | `EMAIL_FROM` | Email pengirim | `your-email@gmail.com` |
+| 34 | `RESEND_API_KEY` | API key Resend (jika pakai Resend) | `re_xxx` |
+| 35 | `RESEND_FROM_EMAIL` | Alamat pengirim domain terverifikasi di Resend | `Nama <noreply@domain.com>` |
 
 ## ⚠️ Catatan Penting
 
@@ -136,6 +143,7 @@ Saat setup di Render, pastikan semua variable berikut sudah di-set:
 - [ ] `EMAIL_USER` (untuk reset password via Gmail)
 - [ ] `EMAIL_PASS` (Gmail App Password)
 - [ ] `EMAIL_FROM` (email pengirim)
+- [ ] `RESEND_API_KEY` dan `RESEND_FROM_EMAIL` (jika menggunakan Resend)
 
 ## 🐛 Troubleshooting
 
