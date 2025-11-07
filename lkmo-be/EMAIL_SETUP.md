@@ -12,25 +12,33 @@ Panduan untuk mengkonfigurasi email service agar fitur reset password dapat meng
    - Buka [App Passwords](https://myaccount.google.com/apppasswords)
    - Pilih "Mail" dan "Other (Custom name)"
    - Masukkan nama: "LKMO Backend"
-   - Copy password yang di-generate
+   - Copy password 16 karakter yang di-generate (tanpa spasi)
 
-4. Tambahkan ke `.env`:
+4. Tambahkan ke `.env` atau Render Environment:
 ```env
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password-here
-EMAIL_FROM=your-email@gmail.com
+EMAIL_USER=yangpentingmakan0@gmail.com
+EMAIL_PASS=<APP_PASSWORD_16_DIGIT>
+EMAIL_FROM=yangpentingmakan0@gmail.com
 ```
 
-### Menggunakan SMTP Gmail
+### Menggunakan SMTP Gmail (Recommended untuk Render)
 
 ```env
 SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-EMAIL_FROM=your-email@gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=yangpentingmakan0@gmail.com
+SMTP_PASS=<APP_PASSWORD_16_DIGIT>
+EMAIL_FROM=yangpentingmakan0@gmail.com
+
+# Optional fallback untuk development
+EMAIL_USER=yangpentingmakan0@gmail.com
+EMAIL_PASS=<APP_PASSWORD_16_DIGIT>
 ```
+
+Setelah menambahkan variabel di Render:
+- Klik **Save Changes**, lalu **Restart** service backend.
+- Jika Gmail mengirim email keamanan "blocked sign-in", buka email tersebut dan pilih **Yes, it was me**.
 
 ## Opsi 2: SMTP Server Lain
 
