@@ -97,7 +97,7 @@ export default function AdminReviewsPage() {
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
             <p className="mt-4 text-gray-600">Memuat reviews...</p>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function AdminReviewsPage() {
                             alt={review.user.name}
                           />
                         ) : (
-                          <div className="h-10 w-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold">
+                          <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
                             {review.user.name.charAt(0).toUpperCase()}
                           </div>
                         )}
@@ -149,7 +149,7 @@ export default function AdminReviewsPage() {
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <Link
                         to={`/recipe/${review.recipe._id}`}
-                        className="flex items-center gap-2 hover:text-orange-600"
+                        className="flex items-center gap-2 hover:text-green-600"
                       >
                         <Eye size={16} />
                         <span>{review.recipe.title}</span>

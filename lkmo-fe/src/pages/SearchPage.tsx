@@ -145,7 +145,7 @@ export default function SearchPage() {
         <input
           type="text"
           placeholder="Cari Resep, Bahan Makanan, dll"
-          className="w-full pl-12 pr-24 py-4 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          className="w-full pl-12 pr-24 py-4 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -156,7 +156,7 @@ export default function SearchPage() {
         <button
           onClick={handleSearch}
           disabled={loading}
-          className="absolute inset-y-0 right-0 flex items-center px-6 bg-orange-500 text-white font-medium rounded-r-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed"
+          className="absolute inset-y-0 right-0 flex items-center px-6 bg-green-500 text-white font-medium rounded-r-lg hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
         >
           Cari
         </button>
@@ -186,7 +186,7 @@ export default function SearchPage() {
                   setSearchTerm('')
                   setSearchedKeyword('')
                 }}
-                className="text-sm text-orange-500 hover:text-orange-600"
+                className="text-sm text-green-500 hover:text-green-600"
               >
                 Reset Filter
               </button>
@@ -258,7 +258,7 @@ export default function SearchPage() {
               </p>
               <a
                 href="/upload"
-                className="inline-block px-6 py-3 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600"
+                className="inline-block px-6 py-3 bg-green-500 text-white font-medium rounded-md hover:bg-green-600"
               >
                 <PlusIcon size={18} className="inline-block -mt-1 mr-2" />
                 Jadilah yang Pertama Menulis Resep
@@ -306,7 +306,7 @@ export default function SearchPage() {
                       onChange={(e) => {
                         setSelectedCategory(e.target.value)
                       }}
-                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+                      className="h-4 w-4 text-green-500 border-gray-300 focus:ring-green-500"
                     />
                     <span className="ml-3 text-gray-600">{cat}</span>
                   </label>
@@ -316,7 +316,7 @@ export default function SearchPage() {
                     onClick={() => {
                       setSelectedCategory('')
                     }}
-                    className="text-xs text-orange-500 hover:text-orange-600 mt-1"
+                    className="text-xs text-green-500 hover:text-green-600 mt-1"
                   >
                     Hapus filter
                   </button>
@@ -342,7 +342,7 @@ export default function SearchPage() {
                       onChange={(e) => {
                         setSelectedPrice(e.target.value)
                       }}
-                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+                      className="h-4 w-4 text-green-500 border-gray-300 focus:ring-green-500"
                     />
                     <span className="ml-3 text-gray-600">{price}</span>
                   </label>
@@ -352,7 +352,7 @@ export default function SearchPage() {
                     onClick={() => {
                       setSelectedPrice('')
                     }}
-                    className="text-xs text-orange-500 hover:text-orange-600 mt-1"
+                    className="text-xs text-green-500 hover:text-green-600 mt-1"
                   >
                     Hapus filter
                   </button>
@@ -385,7 +385,7 @@ export default function SearchPage() {
                           setSelectedEquipment(selectedEquipment.filter(item => item !== eq.value))
                         }
                       }}
-                      className="h-4 w-4 text-orange-500 border-gray-300 focus:ring-orange-500 rounded"
+                      className="h-4 w-4 text-green-500 border-gray-300 focus:ring-green-500 rounded"
                     />
                     <span className="ml-3 text-gray-600">{eq.label}</span>
                   </label>
@@ -395,7 +395,7 @@ export default function SearchPage() {
                     onClick={() => {
                       setSelectedEquipment([])
                     }}
-                    className="text-xs text-orange-500 hover:text-orange-600 mt-1"
+                    className="text-xs text-green-500 hover:text-green-600 mt-1"
                   >
                     Hapus filter
                   </button>

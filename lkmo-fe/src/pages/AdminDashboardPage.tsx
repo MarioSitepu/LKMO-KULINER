@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Memuat dashboard...</p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function AdminDashboardPage() {
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={loadDashboard}
-            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
           >
             Coba Lagi
           </button>
@@ -127,8 +127,8 @@ export default function AdminDashboardPage() {
               <p className="text-sm font-medium text-gray-600">Total Recipes</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">{data.totalRecipes}</p>
             </div>
-            <div className="bg-orange-100 p-3 rounded-full">
-              <ChefHat className="text-orange-600" size={24} />
+            <div className="bg-green-100 p-3 rounded-full">
+              <ChefHat className="text-green-600" size={24} />
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
@@ -170,7 +170,7 @@ export default function AdminDashboardPage() {
             {data.recipesByCategory.map((cat) => (
               <div key={cat._id} className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
                   <span className="text-gray-700">
                     {categoryNames[cat._id] || cat._id}
                   </span>
@@ -181,7 +181,7 @@ export default function AdminDashboardPage() {
           </div>
           <Link
             to="/admin/recipes"
-            className="mt-6 flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium"
+            className="mt-6 flex items-center text-green-600 hover:text-green-700 text-sm font-medium"
           >
             Lihat semua resep <ArrowRight className="ml-1" size={16} />
           </Link>
@@ -195,7 +195,7 @@ export default function AdminDashboardPage() {
               data.topUsers.map((user, index) => (
                 <div key={user._id} className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mr-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold mr-3">
                       {index + 1}
                     </div>
                     <div>
@@ -212,7 +212,7 @@ export default function AdminDashboardPage() {
           </div>
           <Link
             to="/admin/users"
-            className="mt-6 flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium"
+            className="mt-6 flex items-center text-green-600 hover:text-green-700 text-sm font-medium"
           >
             Lihat semua users <ArrowRight className="ml-1" size={16} />
           </Link>
@@ -223,17 +223,17 @@ export default function AdminDashboardPage() {
       {data.passwordResetNotifications && data.passwordResetNotifications.length > 0 && (
         <div className="mt-8 bg-white rounded-lg shadow p-6">
           <div className="flex items-center mb-4">
-            <Bell className="text-orange-600 mr-2" size={24} />
+            <Bell className="text-green-600 mr-2" size={24} />
             <h2 className="text-xl font-bold text-gray-900">Password Reset Notifications</h2>
           </div>
           <div className="space-y-3">
             {data.passwordResetNotifications.map((notification, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg"
+                className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg"
               >
                 <div className="flex items-center">
-                  <Key className="text-orange-600 mr-3" size={20} />
+                  <Key className="text-green-600 mr-3" size={20} />
                   <div>
                     <p className="font-medium text-gray-900">{notification.userName}</p>
                     <p className="text-sm text-gray-600">{notification.email}</p>
@@ -266,25 +266,25 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/admin/users"
-            className="p-4 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-colors"
+            className="p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors"
           >
-            <Users className="text-orange-600 mb-2" size={24} />
+            <Users className="text-green-600 mb-2" size={24} />
             <h3 className="font-semibold text-gray-900">Manage Users</h3>
             <p className="text-sm text-gray-600 mt-1">Kelola pengguna dan peran</p>
           </Link>
           <Link
             to="/admin/recipes"
-            className="p-4 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-colors"
+            className="p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors"
           >
-            <ChefHat className="text-orange-600 mb-2" size={24} />
+            <ChefHat className="text-green-600 mb-2" size={24} />
             <h3 className="font-semibold text-gray-900">Manage Recipes</h3>
             <p className="text-sm text-gray-600 mt-1">Kelola resep masakan</p>
           </Link>
           <Link
             to="/admin/reviews"
-            className="p-4 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-colors"
+            className="p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors"
           >
-            <Star className="text-orange-600 mb-2" size={24} />
+            <Star className="text-green-600 mb-2" size={24} />
             <h3 className="font-semibold text-gray-900">Manage Reviews</h3>
             <p className="text-sm text-gray-600 mt-1">Kelola ulasan dan rating</p>
           </Link>

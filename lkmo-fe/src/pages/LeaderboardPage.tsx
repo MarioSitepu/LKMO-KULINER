@@ -42,7 +42,7 @@ const getRankIcon = (rank: number) => {
     case 2:
       return <MedalIcon className="w-6 h-6 text-gray-400" />
     case 3:
-      return <MedalIcon className="w-6 h-6 text-orange-600" />
+      return <MedalIcon className="w-6 h-6 text-green-600" />
     default:
       return <span className="text-gray-600 font-bold">#{rank}</span>
   }
@@ -55,7 +55,7 @@ const getRankBgColor = (rank: number) => {
     case 2:
       return 'bg-gray-50 border-gray-200'
     case 3:
-      return 'bg-orange-50 border-orange-200'
+      return 'bg-green-50 border-green-200'
     default:
       return 'bg-white border-gray-200'
   }
@@ -130,7 +130,7 @@ export default function LeaderboardPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-orange-200 text-orange-600 font-semibold">
+              <div className="w-full h-full flex items-center justify-center bg-green-200 text-green-600 font-semibold">
                 {user.name.charAt(0).toUpperCase()}
               </div>
             )}
@@ -143,7 +143,7 @@ export default function LeaderboardPage() {
           </div>
         </div>
         <div className="text-right">
-          <div className="font-bold text-orange-600">{displayValue()}</div>
+          <div className="font-bold text-green-600">{displayValue()}</div>
           {type === 'rating' && user.totalRatings && (
             <div className="text-xs text-gray-500">
               {user.totalRatings} rating
@@ -158,7 +158,7 @@ export default function LeaderboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Memuat leaderboard...</p>
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function LeaderboardPage() {
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
           >
             Coba Lagi
           </button>
@@ -189,7 +189,7 @@ export default function LeaderboardPage() {
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-          <TrophyIcon className="text-orange-500" />
+          <TrophyIcon className="text-green-500" />
           Leaderboard
         </h1>
         <p className="text-gray-600">
@@ -201,7 +201,7 @@ export default function LeaderboardPage() {
         {/* Resep Terpopuler */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center gap-2 mb-6">
-            <UsersIcon className="w-6 h-6 text-orange-500" />
+            <UsersIcon className="w-6 h-6 text-green-500" />
             <h2 className="text-xl font-bold text-gray-800">
               Resep Terpopuler
             </h2>
@@ -225,7 +225,7 @@ export default function LeaderboardPage() {
         {/* Resep Terbanyak */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center gap-2 mb-6">
-            <TrophyIcon className="w-6 h-6 text-orange-500" />
+            <TrophyIcon className="w-6 h-6 text-green-500" />
             <h2 className="text-xl font-bold text-gray-800">
               Resep Terbanyak
             </h2>
@@ -249,7 +249,7 @@ export default function LeaderboardPage() {
         {/* Rating Tertinggi */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center gap-2 mb-6">
-            <StarIcon className="w-6 h-6 text-orange-500" />
+            <StarIcon className="w-6 h-6 text-green-500" />
             <h2 className="text-xl font-bold text-gray-800">
               Rating Tertinggi
             </h2>
@@ -274,7 +274,7 @@ export default function LeaderboardPage() {
       {/* 6 Resep Terpopuler */}
       <div className="mt-12">
         <div className="flex items-center gap-2 mb-6">
-          <FlameIcon className="w-6 h-6 text-orange-500" />
+          <FlameIcon className="w-6 h-6 text-green-500" />
           <h2 className="text-2xl font-bold text-gray-800">6 Resep Terpopuler</h2>
         </div>
         <p className="text-gray-600 mb-6">

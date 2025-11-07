@@ -156,7 +156,7 @@ export default function CategoryPage() {
             <p className="text-gray-500">Belum ada resep untuk kategori ini.</p>
             <a
               href="/upload"
-              className="mt-4 inline-block px-6 py-3 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600"
+              className="mt-4 inline-block px-6 py-3 bg-green-500 text-white font-medium rounded-md hover:bg-green-600"
             >
               Upload Resep Pertama
             </a>

@@ -88,7 +88,7 @@ export default function ProfilePage() {
     <div className="max-w-4xl mx-auto p-6">
       {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
-        <div className="bg-orange-100 h-32"></div>
+        <div className="bg-green-100 h-32"></div>
         <div className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-end -mt-16 mb-4 gap-4">
             <div className="relative">
@@ -111,7 +111,7 @@ export default function ProfilePage() {
             <div className="flex gap-2">
               <Link
                 to="/edit-profile"
-                className="px-4 py-2 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600"
+                className="px-4 py-2 bg-green-500 text-white font-medium rounded-md hover:bg-green-600"
               >
                 Edit Profil
               </Link>
@@ -150,7 +150,7 @@ export default function ProfilePage() {
           <button
             className={`py-3 px-6 border-b-2 font-medium text-sm ${
               activeTab === 'recipes'
-                ? 'border-orange-500 text-orange-500'
+                ? 'border-green-500 text-green-500'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('recipes')}
@@ -160,7 +160,7 @@ export default function ProfilePage() {
           <button
             className={`py-3 px-6 border-b-2 font-medium text-sm ${
               activeTab === 'saved'
-                ? 'border-orange-500 text-orange-500'
+                ? 'border-green-500 text-green-500'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('saved')}
@@ -179,7 +179,7 @@ export default function ProfilePage() {
           <>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-800">Resep Saya</h2>
-              <Link to="/upload" className="text-orange-500 hover:underline">
+              <Link to="/upload" className="text-green-500 hover:underline">
                 + Tambah Resep Baru
               </Link>
             </div>
@@ -188,7 +188,7 @@ export default function ProfilePage() {
                 <p>Belum ada resep. Mulai dengan membuat resep pertama!</p>
                 <Link
                   to="/upload"
-                  className="mt-4 inline-block text-orange-500 hover:underline"
+                  className="mt-4 inline-block text-green-500 hover:underline"
                 >
                   Upload Resep
                 </Link>
@@ -224,7 +224,7 @@ export default function ProfilePage() {
                 <p>Belum ada resep yang disimpan.</p>
                 <Link
                   to="/category/breakfast"
-                  className="mt-4 inline-block text-orange-500 hover:underline"
+                  className="mt-4 inline-block text-green-500 hover:underline"
                 >
                   Jelajahi Resep
                 </Link>

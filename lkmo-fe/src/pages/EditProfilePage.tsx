@@ -126,7 +126,7 @@ export default function EditProfilePage() {
             />
             <label
               htmlFor="upload"
-              className="absolute bottom-0 right-0 bg-orange-500 text-white p-2 rounded-full cursor-pointer hover:bg-orange-600 shadow-md"
+              className="absolute bottom-0 right-0 bg-green-500 text-white p-2 rounded-full cursor-pointer hover:bg-green-600 shadow-md"
             >
               <CameraIcon size={18} />
             </label>
@@ -148,7 +148,7 @@ export default function EditProfilePage() {
                 type="text"
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                 required
               />
             </div>
@@ -161,7 +161,7 @@ export default function EditProfilePage() {
                 value={profile.bio}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                 rows={4}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                 placeholder="Ceritakan tentang dirimu..."
               />
             </div>
@@ -174,7 +174,7 @@ export default function EditProfilePage() {
                 type="text"
                 value={profile.location}
                 onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                 placeholder="Contoh: Jakarta, Indonesia"
               />
             </div>
@@ -191,7 +191,7 @@ export default function EditProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Menyimpan...' : 'Simpan'}
             </button>

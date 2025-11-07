@@ -110,12 +110,12 @@ export default function AdminUsersPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari user berdasarkan nama atau email..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
           <button
             type="submit"
-            className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+            className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
           >
             Cari
           </button>
@@ -131,7 +131,7 @@ export default function AdminUsersPage() {
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
             <p className="mt-4 text-gray-600">Memuat users...</p>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function AdminUsersPage() {
                               alt={user.name}
                             />
                           ) : (
-                            <div className="h-10 w-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold">
+                            <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">
                               {user.name.charAt(0).toUpperCase()}
                             </div>
                           )}
@@ -196,7 +196,7 @@ export default function AdminUsersPage() {
                       <select
                         value={user.role}
                         onChange={(e) => handleRoleChange(user._id, e.target.value as 'user' | 'admin')}
-                        className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       >
                         <option value="user">User</option>
                         <option value="admin">Admin</option>

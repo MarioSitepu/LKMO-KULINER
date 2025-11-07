@@ -110,12 +110,12 @@ export default function AdminRecipesPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari resep berdasarkan judul..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
           <button
             type="submit"
-            className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+            className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
           >
             Cari
           </button>
@@ -131,7 +131,7 @@ export default function AdminRecipesPage() {
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
             <p className="mt-4 text-gray-600">Memuat recipes...</p>
           </div>
         </div>
@@ -199,7 +199,7 @@ export default function AdminRecipesPage() {
                               alt={recipe.author.name}
                             />
                           ) : (
-                            <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-semibold">
+                            <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-semibold">
                               {recipe.author.name.charAt(0).toUpperCase()}
                             </div>
                           )}
@@ -211,7 +211,7 @@ export default function AdminRecipesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                         {categoryNames[recipe.category] || recipe.category}
                       </span>
                     </td>

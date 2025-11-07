@@ -210,7 +210,7 @@ export default function UploadRecipePage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Contoh: Telur Dadar Mie Instan"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                 required
               />
             </div>
@@ -225,7 +225,7 @@ export default function UploadRecipePage() {
                 id="category"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                 required
               >
                 <option value="">Pilih Kategori</option>
@@ -250,7 +250,7 @@ export default function UploadRecipePage() {
                   onChange={(e) => setFormData({ ...formData, prepTime: e.target.value })}
                   min="1"
                   placeholder="15"
-                  className="w-full p-3 border border-gray-300 rounded-l-md focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full p-3 border border-gray-300 rounded-l-md focus:ring-green-500 focus:border-green-500"
                   required
                 />
                 <span className="inline-flex items-center px-4 bg-gray-100 border border-l-0 border-gray-300 rounded-r-md text-gray-500">
@@ -278,7 +278,7 @@ export default function UploadRecipePage() {
                     }}
                     placeholder="15"
                     min="0"
-                    className="w-24 p-3 border border-gray-300 rounded-r-md focus:ring-orange-500 focus:border-orange-500"
+                    className="w-24 p-3 border border-gray-300 rounded-r-md focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
                 <span className="text-gray-500">.</span>
@@ -293,7 +293,7 @@ export default function UploadRecipePage() {
                   }}
                   placeholder="000"
                   maxLength={3}
-                  className="w-24 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                  className="w-24 p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                 />
                 <span className="text-sm text-gray-500">
                   (ribuan - opsional)
@@ -326,8 +326,8 @@ export default function UploadRecipePage() {
                 />
               ) : (
                 <div className="space-y-2">
-                  <div className="mx-auto w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                    <PlusIcon size={24} className="text-orange-500" />
+                  <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <PlusIcon size={24} className="text-green-500" />
                   </div>
                   <div className="text-gray-700 font-medium">
                     Klik untuk mengunggah foto
@@ -355,11 +355,11 @@ export default function UploadRecipePage() {
               ].map((item) => (
                 <label
                   key={item}
-                  className="inline-flex items-center p-2 border border-gray-300 rounded-md cursor-pointer hover:bg-orange-50"
+                  className="inline-flex items-center p-2 border border-gray-300 rounded-md cursor-pointer hover:bg-green-50"
                 >
                   <input
                     type="checkbox"
-                    className="mr-2 text-orange-500 focus:ring-orange-500"
+                    className="mr-2 text-green-500 focus:ring-green-500"
                     checked={formData.equipment.includes(item)}
                     onChange={(e) => handleEquipmentChange(item, e.target.checked)}
                   />
@@ -380,7 +380,7 @@ export default function UploadRecipePage() {
                 value={formData.otherEquipment}
                 onChange={(e) => setFormData({ ...formData, otherEquipment: e.target.value })}
                 placeholder="Pisahkan dengan koma (contoh: pisau, talenan)"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
               />
             </div>
           </div>
@@ -397,7 +397,7 @@ export default function UploadRecipePage() {
                   value={ingredient}
                   onChange={(e) => updateIngredient(index, e.target.value)}
                   placeholder="Contoh: 2 butir telur"
-                  className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                  className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                   required={index < 2}
                 />
                 {formData.ingredients.length > 1 && (
@@ -414,7 +414,7 @@ export default function UploadRecipePage() {
             <button
               type="button"
               onClick={addIngredient}
-              className="mt-4 flex items-center text-sm text-orange-500 font-medium"
+              className="mt-4 flex items-center text-sm text-green-500 font-medium"
             >
               <PlusIcon size={16} className="mr-1" />
               Tambah Bahan
@@ -429,7 +429,7 @@ export default function UploadRecipePage() {
             {formData.steps.map((step, index) => (
               <div key={index} className="flex gap-2">
                 <div className="flex-shrink-0 pt-3">
-                  <div className="flex items-center justify-center w-6 h-6 bg-orange-100 text-orange-500 font-medium rounded-full">
+                  <div className="flex items-center justify-center w-6 h-6 bg-green-100 text-green-500 font-medium rounded-full">
                     {index + 1}
                   </div>
                 </div>
@@ -439,7 +439,7 @@ export default function UploadRecipePage() {
                     onChange={(e) => updateStep(index, e.target.value)}
                     rows={2}
                     placeholder="Jelaskan langkah..."
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                     required={index < 2}
                   />
                 </div>
@@ -457,7 +457,7 @@ export default function UploadRecipePage() {
             <button
               type="button"
               onClick={addStep}
-              className="mt-4 flex items-center text-sm text-orange-500 font-medium"
+              className="mt-4 flex items-center text-sm text-green-500 font-medium"
             >
               <PlusIcon size={16} className="mr-1" />
               Tambah Langkah
@@ -477,7 +477,7 @@ export default function UploadRecipePage() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Menyimpan...' : 'Publikasikan Resep'}
           </button>

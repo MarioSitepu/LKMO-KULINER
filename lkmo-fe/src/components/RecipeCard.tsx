@@ -50,7 +50,7 @@ const RecipeCard = ({
             {equipment.map((item, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded"
+                className="inline-flex items-center px-2 py-1 text-xs bg-green-100 text-green-700 rounded"
               >
                 {item}
               </span>

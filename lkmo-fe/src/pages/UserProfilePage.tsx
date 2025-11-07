@@ -63,7 +63,7 @@ export default function UserProfilePage() {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
           <div className="text-gray-500">Memuat profil...</div>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function UserProfilePage() {
           <p className="text-red-600 mb-4">{error}</p>
           <Link
             to="/leaderboard"
-            className="inline-block px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+            className="inline-block px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
           >
             Kembali ke Leaderboard
           </Link>
@@ -101,7 +101,7 @@ export default function UserProfilePage() {
     <div className="max-w-4xl mx-auto p-6">
       {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
-        <div className="bg-orange-100 h-32"></div>
+        <div className="bg-green-100 h-32"></div>
         <div className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-end -mt-16 mb-4 gap-4">
             <div className="relative">

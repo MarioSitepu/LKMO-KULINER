@@ -94,13 +94,13 @@ export default function HomePage() {
           <div className="flex flex-wrap gap-3">
             <Link
               to="/upload"
-              className="px-6 py-3 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 transition-colors"
+              className="px-6 py-3 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition-colors"
             >
               Upload Resep
             </Link>
             <Link
               to="/category/breakfast"
-              className="px-6 py-3 bg-white text-orange-500 font-medium rounded-md hover:bg-orange-50 transition-colors"
+              className="px-6 py-3 bg-white text-green-500 font-medium rounded-md hover:bg-green-50 transition-colors"
             >
               Jelajahi Resep
             </Link>
@@ -112,7 +112,7 @@ export default function HomePage() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Kategori Populer</h2>
-          <Link to="/category/breakfast" className="text-orange-500 hover:underline">
+          <Link to="/category/breakfast" className="text-green-500 hover:underline">
             Lihat Semua
           </Link>
         </div>
@@ -154,7 +154,7 @@ export default function HomePage() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Resep Terbaru</h2>
-          <Link to="/category/breakfast" className="text-orange-500 hover:underline">
+          <Link to="/category/breakfast" className="text-green-500 hover:underline">
             Lihat Semua
           </Link>
         </div>
@@ -182,7 +182,7 @@ export default function HomePage() {
       </section>
 
       {/* Call to Action */}
-      <section className="bg-orange-100 rounded-xl p-6 md:p-8">
+      <section className="bg-green-100 rounded-xl p-6 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between">
           <div className="mb-6 md:mb-0 md:mr-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -195,7 +195,7 @@ export default function HomePage() {
           </div>
           <Link
             to="/upload"
-            className="px-6 py-3 bg-orange-500 text-center text-white font-medium rounded-md hover:bg-orange-600 transition-colors md:whitespace-nowrap"
+            className="px-6 py-3 bg-green-500 text-center text-white font-medium rounded-md hover:bg-green-600 transition-colors md:whitespace-nowrap"
           >
             Upload Resep Sekarang
           </Link>

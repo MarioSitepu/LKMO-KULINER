@@ -28,8 +28,8 @@ export default function Layout() {
 
   const isActive = (path: string) => {
     return location.pathname === path
-      ? 'bg-orange-100 text-orange-600'
-      : 'text-gray-600 hover:bg-orange-50'
+      ? 'bg-green-100 text-green-600'
+      : 'text-gray-600 hover:bg-green-50'
   }
 
   const toggleMobileMenu = () => {
@@ -37,11 +37,11 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-orange-50/30">
+    <div className="flex min-h-screen bg-green-50/30">
       {/* ... (Tombol Mobile Menu tetap sama) ... */}
       <button
         onClick={toggleMobileMenu}
-        className="fixed top-4 left-4 z-50 md:hidden bg-orange-500 text-white p-2 rounded-md"
+        className="fixed top-4 left-4 z-50 md:hidden bg-green-500 text-white p-2 rounded-md"
       >
         {isMobileMenuOpen ? <XIcon size={20} /> : <MenuIcon size={20} />}
       </button>
@@ -54,10 +54,10 @@ export default function Layout() {
       >
         <div className="flex flex-col h-full">
           {/* ... (Logo tetap sama) ... */}
-          <div className="flex items-center justify-center py-6 border-b border-orange-100">
+          <div className="flex items-center justify-center py-6 border-b border-green-100">
             <Link to="/" className="flex items-center gap-2">
               <img src={logo} alt="Logo" className="h-6 w-6 object-contain" />
-              <h1 className="text-xl font-bold text-orange-500">
+              <h1 className="text-xl font-bold text-green-500">
                 YangPentingMakan
               </h1>
             </Link>
@@ -109,7 +109,7 @@ export default function Layout() {
               <li className="pt-2">
                 <button
                   onClick={() => setIsKategoriOpen(!isKategoriOpen)}
-                  className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-orange-50"
+                  className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-green-50"
                 >
                   <p className="text-xs font-semibold text-gray-500 uppercase">
                     Waktu Makan
@@ -173,7 +173,7 @@ export default function Layout() {
               <li className="pt-2">
                 <button
                   onClick={() => setIsHargaOpen(!isHargaOpen)}
-                  className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-orange-50"
+                  className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-green-50"
                 >
                   <p className="text-xs font-semibold text-gray-500 uppercase">
                     Harga
@@ -227,7 +227,7 @@ export default function Layout() {
               <li className="pt-2">
                 <button
                   onClick={() => setIsPeralatanOpen(!isPeralatanOpen)}
-                  className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-orange-50"
+                  className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-green-50"
                 >
                   <p className="text-xs font-semibold text-gray-500 uppercase">
                     Peralatan
@@ -345,10 +345,10 @@ export default function Layout() {
           </nav>
           {/* Login button */}
           {!isAuthenticated && (
-            <div className="p-4 border-t border-orange-100">
+            <div className="p-4 border-t border-green-100">
               <Link
                 to="/login"
-                className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600"
+                className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600"
               >
                 <LogInIcon size={18} className="mr-2" />
                 <span>Masuk</span>

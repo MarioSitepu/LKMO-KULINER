@@ -194,7 +194,7 @@ export default function RecipePage() {
           <div className="text-red-500 mb-4">{error || 'Resep tidak ditemukan'}</div>
           <button
             onClick={() => navigate('/')}
-            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
           >
             Kembali ke Beranda
           </button>
@@ -215,8 +215,8 @@ export default function RecipePage() {
             onClick={toggleSave}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
               isSaved
-                ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-md'
-                : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-orange-500 hover:text-orange-500'
+                ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
+                : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-green-500 hover:text-green-500'
             }`}
             title={isSaved ? 'Hapus dari tersimpan' : 'Simpan resep'}
           >
@@ -259,7 +259,7 @@ export default function RecipePage() {
             </div>
           )}
           <div className="flex items-center">
-            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">
+            <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
               {getCategoryName(recipe.category)}
             </span>
           </div>
@@ -303,7 +303,7 @@ export default function RecipePage() {
               {recipe.ingredients && recipe.ingredients.length > 0 ? (
                 recipe.ingredients.map((ingredient, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="inline-block w-2 h-2 mt-2 mr-3 bg-orange-500 rounded-full"></span>
+                    <span className="inline-block w-2 h-2 mt-2 mr-3 bg-green-500 rounded-full"></span>
                     <span>{ingredient}</span>
                   </li>
                 ))
@@ -323,7 +323,7 @@ export default function RecipePage() {
                 recipe.steps.map((step, index) => (
                   <li key={index} className="flex">
                     <div className="flex-shrink-0 mr-4">
-                      <div className="flex items-center justify-center w-8 h-8 bg-orange-100 text-orange-500 font-bold rounded-full">
+                      <div className="flex items-center justify-center w-8 h-8 bg-green-100 text-green-500 font-bold rounded-full">
                         {index + 1}
                       </div>
                     </div>
@@ -392,7 +392,7 @@ export default function RecipePage() {
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
                   rows={4}
                   placeholder="Bagikan pengalaman memasak resep ini..."
                   maxLength={500}
@@ -405,7 +405,7 @@ export default function RecipePage() {
               <button
                 type="submit"
                 disabled={submittingReview || !rating || !comment.trim()}
-                className="px-4 py-2 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submittingReview ? 'Mengirim...' : recipe.userReview ? 'Update Ulasan' : 'Kirim Ulasan'}
               </button>
@@ -417,8 +417,8 @@ export default function RecipePage() {
         )}
         
         {!isAuthenticated && (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-            <p className="text-sm text-orange-800">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-green-800">
               Silakan <button onClick={() => navigate('/login')} className="underline font-medium">login</button> untuk menambahkan ulasan
             </p>
           </div>
