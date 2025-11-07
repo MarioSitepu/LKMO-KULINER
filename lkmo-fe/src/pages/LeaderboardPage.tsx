@@ -107,6 +107,7 @@ export default function LeaderboardPage() {
     }
 
     const imageUrl = getUserImageUrl(user.image, defaultAvatar) || defaultAvatar
+    const displayName = user.name.length > 18 ? `${user.name.slice(0, 18)}…` : user.name
 
     const handleClick = () => {
       navigate(`/user/${user.id}`)
@@ -136,7 +137,9 @@ export default function LeaderboardPage() {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-800 truncate">{user.name}</h3>
+            <h3 className="font-semibold text-gray-800 truncate" title={user.name}>
+              {displayName}
+            </h3>
             {user.bio && (
               <p className="text-sm text-gray-500 truncate">{user.bio}</p>
             )}
