@@ -92,6 +92,7 @@ LKMO Recipes adalah aplikasi web full-stack untuk berbagi resep makanan. Penggun
 - ✅ Protected routes
 - ✅ User profile management
 - ✅ Upload foto profil
+- ✅ Password tersimpan dalam bentuk hash (bcrypt) untuk keamanan maksimal
 
 ### Recipe Management
 - ✅ Buat resep baru dengan gambar
@@ -120,6 +121,25 @@ LKMO Recipes adalah aplikasi web full-stack untuk berbagi resep makanan. Penggun
 - ✅ Error handling
 - ✅ Pagination
 - ✅ Search functionality
+
+### 👥 Perspektif Pengguna (User)
+- Jelajahi resep terbaru, populer, dan rekomendasi kategori langsung dari beranda.
+- Gunakan pencarian lanjutan dengan filter kategori, rentang harga, dan peralatan masak.
+- Lihat detail resep lengkap beserta rating, ulasan komunitas, serta simpan resep favorit untuk akses cepat.
+- Upload resep pribadi dengan gambar, bahan, langkah, peralatan, dan estimasi harga yang rapi.
+- Kelola profil pribadi: foto, bio, lokasi, serta pantau statistik jumlah resep dan resep tersimpan.
+- Ikuti kreator lain, lihat resep mereka, dan berpartisipasi dalam ulasan untuk meningkatkan visibilitas.
+- Gunakan leaderboard untuk mencari kreator terbaik dan inspirasi resep hemat.
+- Reset password melalui OTP atau lanjutkan dengan login Google secara instan.
+
+### 🛡️ Perspektif Admin
+- Akses dashboard ringkasan (total user, resep, review, admin, penambahan user/resep terbaru).
+- Pantau distribusi kategori resep serta top contributor langsung dari panel utama.
+- Kelola user: ubah role user ↔ admin, hapus akun, dan cari user tertentu.
+- Moderasi resep publik: telusuri, cari, dan hapus resep yang melanggar kebijakan.
+- Moderasi ulasan: lihat daftar review terbaru dan hapus bila tidak sesuai.
+- Lihat notifikasi permintaan reset password untuk memantau aktivitas keamanan.
+- Gunakan quick actions untuk bernavigasi cepat ke halaman manajemen user, resep, dan ulasan.
 
 ---
 
@@ -683,7 +703,7 @@ ISC License
 
 ## 👤 Author
 
-Dibuat dengan ❤️ untuk berbagi resep makanan
+Dibuat Oleh Team LKMO Kel.7 dengan ❤️ untuk berbagi resep makanan
 
 ---
 
