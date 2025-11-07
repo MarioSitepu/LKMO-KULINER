@@ -42,7 +42,7 @@ const sendWithResend = async ({ to, subject, html, text }) => {
     throw new Error('RESEND_FROM_EMAIL belum di-set');
   }
 
-  const result = await resendClient.emails.send({
+  const { data, error } = await resendClient.emails.send({
     from,
     to,
     subject,
@@ -51,8 +51,15 @@ const sendWithResend = async ({ to, subject, html, text }) => {
     reply_to: process.env.RESEND_REPLY_TO || undefined
   });
 
-  console.log('Email sent via Resend:', result.id);
-  return { success: true, messageId: result.id, provider: 'resend' };
+  if (error) {
+    console.error('[Resend] Error response:', error);
+    throw new Error(error?.message || 'Resend failed without error message');
+  }
+
+  const messageId = data?.id || null;
+  console.log('Email sent via Resend:', messageId);
+
+  return { success: true, messageId, provider: 'resend' };
 };
 
 const sendWithNodemailer = async ({ to, subject, html, text }) => {
