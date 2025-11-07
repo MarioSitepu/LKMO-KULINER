@@ -83,35 +83,40 @@ router.post('/request', [
           remainingSeconds: remainingTime
         });
       }
-
-      // Check if OTP is still valid (not expired)
-      if (new Date() < existingOTP.expiresAt && existingOTP.attempts < 3) {
-        return res.status(400).json({
-          success: false,
-          message: 'Kode OTP masih aktif. Silakan cek email Anda.'
-        });
-      }
     }
 
-    // Generate new OTP
-    const otpCode = generateOTP();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    let otpCode;
 
-    // Create or update OTP
-    await OTP.findOneAndUpdate(
-      { email: normalizedEmail, type: 'password_reset', used: false },
-      {
-        email: normalizedEmail,
-        code: otpCode,
-        type: 'password_reset',
+    if (existingOTP && new Date() < existingOTP.expiresAt && existingOTP.attempts < 3) {
+      // Reuse existing OTP and extend expiration so user can request resend
+      otpCode = existingOTP.code;
+      await OTP.findByIdAndUpdate(existingOTP._id, {
         expiresAt,
         attempts: 0,
         used: false,
-        cooldownUntil: null,
-        cooldownLevel: 0
-      },
-      { upsert: true, new: true }
-    );
+        cooldownUntil: null
+      });
+    } else {
+      // Generate new OTP
+      otpCode = generateOTP();
+
+      // Create or update OTP
+      await OTP.findOneAndUpdate(
+        { email: normalizedEmail, type: 'password_reset', used: false },
+        {
+          email: normalizedEmail,
+          code: otpCode,
+          type: 'password_reset',
+          expiresAt,
+          attempts: 0,
+          used: false,
+          cooldownUntil: null,
+          cooldownLevel: 0
+        },
+        { upsert: true, new: true }
+      );
+    }
 
     // Send OTP email
     try {
@@ -124,7 +129,7 @@ router.post('/request', [
       } else {
         return res.status(500).json({
           success: false,
-          message: 'Gagal mengirim email. Silakan coba lagi nanti.'
+          message: 'Server sedang lambat. Silakan coba kirim OTP lagi.'
         });
       }
     }
