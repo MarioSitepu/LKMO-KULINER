@@ -92,10 +92,8 @@ export default function UserProfilePage() {
   }
 
   const profile = profileData.user
-  const stats = profileData.stats || {
-    recipesCount: 0,
-    followersCount: 0,
-    followingCount: 0,
+  const stats = {
+    recipesCount: profileData.stats?.recipesCount ?? 0,
   }
 
   return (
@@ -147,26 +145,10 @@ export default function UserProfilePage() {
           <div className="flex flex-wrap gap-6">
             <div className="flex items-center text-gray-600">
               <span className="font-medium text-gray-900 mr-1">
-                {stats.recipesCount || 0}
+                {stats.recipesCount}
               </span>{' '}
               Resep
             </div>
-            {stats.followersCount !== undefined && (
-              <div className="flex items-center text-gray-600">
-                <span className="font-medium text-gray-900 mr-1">
-                  {stats.followersCount || 0}
-                </span>{' '}
-                Pengikut
-              </div>
-            )}
-            {stats.followingCount !== undefined && (
-              <div className="flex items-center text-gray-600">
-                <span className="font-medium text-gray-900 mr-1">
-                  {stats.followingCount || 0}
-                </span>{' '}
-                Mengikuti
-              </div>
-            )}
           </div>
         </div>
       </div>
