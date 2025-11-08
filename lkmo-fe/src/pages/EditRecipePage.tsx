@@ -7,6 +7,10 @@ import { getImageUrl, getLegacyApiImageUrl } from '../utils/imageUtils'
 import defaultRecipeImage from '../assets/default-recipe.svg'
 
 const MAIN_EQUIPMENT = ['Rice Cooker', 'Microwave', 'Kompor', 'Wajan', 'Panci rebus']
+const MAIN_EQUIPMENT_MAP: Record<string, string> = MAIN_EQUIPMENT.reduce((acc, item) => {
+  acc[item.toLowerCase()] = item
+  return acc
+}, {} as Record<string, string>)
 
 interface FormState {
   title: string
@@ -78,8 +82,23 @@ export default function EditRecipePage() {
       }
 
       const equipmentList: string[] = recipe.equipment || []
-      const selectedMainEquipment = equipmentList.filter((item) => MAIN_EQUIPMENT.includes(item))
-      const otherEquipments = equipmentList.filter((item) => !MAIN_EQUIPMENT.includes(item))
+      const selectedMainEquipment: string[] = []
+      const otherEquipments: string[] = []
+
+      equipmentList.forEach((rawItem) => {
+        const value = typeof rawItem === 'string' ? rawItem.trim() : ''
+        if (!value) return
+        const canonical = MAIN_EQUIPMENT_MAP[value.toLowerCase()]
+        if (canonical) {
+          if (!selectedMainEquipment.includes(canonical)) {
+            selectedMainEquipment.push(canonical)
+          }
+        } else {
+          if (!otherEquipments.includes(value)) {
+            otherEquipments.push(value)
+          }
+        }
+      })
 
       const parsedPrice = parsePrice(recipe.price)
       const ingredients = recipe.ingredients?.length ? recipe.ingredients : ['']
