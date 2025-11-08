@@ -31,6 +31,12 @@ LKMO Recipes adalah aplikasi web full-stack untuk berbagi resep makanan. Penggun
 
 ---
 
+## 🌐 Live Demo
+
+- Production: [https://www.yangpentingmakan.my.id/](https://www.yangpentingmakan.my.id/)
+
+---
+
 ## 🛠️ Teknologi yang Digunakan
 
 ### Backend (`lkmo-be`)
@@ -84,61 +90,37 @@ LKMO Recipes adalah aplikasi web full-stack untuk berbagi resep makanan. Penggun
 
 ## ✨ Fitur
 
-### Authentication & User Management
-- ✅ Registrasi dengan email/password
-- ✅ Login dengan email/password
-- ✅ Login dengan Google OAuth
-- ✅ JWT-based authentication
-- ✅ Protected routes
-- ✅ User profile management
-- ✅ Upload foto profil
-- ✅ Password tersimpan dalam bentuk hash (bcrypt) untuk keamanan maksimal
+### Pengalaman Pengguna
+- 🏠 **Beranda interaktif** dengan hero CTA, tombol "Jelajahi Resep" yang langsung membuka semua resep, daftar kategori populer, dan resep terbaru.
+- 🔍 **Halaman Cari Resep** dengan tombol "Tampilkan Semua Resep", pencarian berbasis kata kunci, filter kategori, rentang harga, serta peralatan memasak (OR logic + opsi "Lainnya").
+- 📄 **Detail resep lengkap** menampilkan bahan, langkah, estimasi waktu & harga, peralatan, penulis, rating, ulasan komunitas, serta tombol simpan.
+- 🧑‍🍳 **Upload & Edit Resep** dengan form dinamis (tambahkan/hapus bahan & langkah), dukungan upload gambar Supabase, pengelolaan kategori/peralatan/harga, dan pengalihan otomatis ke halaman detail.
+- 📁 **Profil pengguna** untuk melihat identitas, statistik resep, daftar resep milik user, serta resep tersimpan milik pengguna sendiri.
+- 🏅 **Leaderboard** menampilkan kreator populer, jumlah resep terbanyak, dan rating tertinggi dengan akses cepat ke profil publik mereka.
+- 🔐 **Reset password berbasis OTP**, login Google OAuth, dan auto-redirect ketika token kedaluwarsa.
 
-### Recipe Management
-- ✅ Buat resep baru dengan gambar
-- ✅ Edit resep (hanya pemilik)
-- ✅ Hapus resep (hanya pemilik)
-- ✅ Upload gambar resep
-- ✅ Kategori resep (breakfast, lunch, dinner, snack)
-- ✅ Filter berdasarkan kategori
-- ✅ Filter berdasarkan peralatan
-- ✅ Filter berdasarkan harga (murah, sedang, mahal)
-- ✅ Pencarian resep (title, ingredients)
-- ✅ Detail resep lengkap
+### Manajemen Resep & Komunitas
+- ✏️ Buat, edit, dan hapus resep (dibatasi untuk pemilik/admin).
+- 🖼️ Upload gambar resep & profil ke Supabase (fallback legacy path masih didukung).
+- 🧺 Simpan/unsave resep favorit dan cek status langsung dari kartu resep/detail.
+- ⭐ Beri rating 1-5 serta tulis, ubah, dan hapus ulasan pribadi dengan kalkulasi rating otomatis.
+- 🧾 Dukungan filter kategori (breakfast, lunch, dinner, snack), peralatan (Rice Cooker, Microwave, Kompor, Wajan, Panci rebus, lainnya), serta rentang harga (under‑10k, 10k‑25k, over‑25k).
+- 🔁 Navigasi cepat dari beranda (kategori populer & latest) maupun leaderboard ke halaman detail atau search dengan filter siap pakai.
 
-### Social Features
-- ✅ Save/Unsave resep
-- ✅ Rating sistem (1-5 bintang)
-- ✅ Review dan komentar
-- ✅ Leaderboard pengguna
-- ✅ Profil user dengan resep
+### Autentikasi & Keamanan
+- ✅ Registrasi & login email/password dengan validasi express-validator.
+- ✅ Login instan via Google OAuth 2.0.
+- ✅ JWT authentication & refresh via localStorage.
+- ✅ Password hashing menggunakan bcrypt.
+- ✅ Proteksi route privat (frontend `ProtectedRoute` & backend middleware).
+- ✅ CORS whitelist tersentralisasi dengan dukungan multi-domain (Render, localhost, custom domain).
 
-### UI/UX
-- ✅ Responsive design (mobile, tablet, desktop)
-- ✅ Modern UI dengan Tailwind CSS
-- ✅ Loading states
-- ✅ Error handling
-- ✅ Pagination
-- ✅ Search functionality
-
-### 👥 Perspektif Pengguna (User)
-- Jelajahi resep terbaru, populer, dan rekomendasi kategori langsung dari beranda.
-- Gunakan pencarian lanjutan dengan filter kategori, rentang harga, dan peralatan masak.
-- Lihat detail resep lengkap beserta rating, ulasan komunitas, serta simpan resep favorit untuk akses cepat.
-- Upload resep pribadi dengan gambar, bahan, langkah, peralatan, dan estimasi harga yang rapi.
-- Kelola profil pribadi: foto, bio, lokasi, serta pantau statistik jumlah resep dan resep tersimpan.
-- Melihat kreator lain di leaderboard, ihat resep mereka, dan berpartisipasi dalam ulasan untuk meningkatkan visibilitas.
-- Gunakan leaderboard untuk mencari kreator terbaik dan inspirasi resep hemat.
-- Reset password melalui OTP atau lanjutkan dengan login Google secara instan.
-
-### 🛡️ Perspektif Admin
-- Akses dashboard ringkasan (total user, resep, review, admin, penambahan user/resep terbaru).
-- Pantau distribusi kategori resep serta top contributor langsung dari panel utama.
-- Kelola user: ubah role user ↔ admin, hapus akun, dan cari user tertentu.
-- Moderasi resep publik: telusuri, cari, dan hapus resep yang melanggar kebijakan.
-- Moderasi ulasan: lihat daftar review terbaru dan hapus bila tidak sesuai.
-- Lihat notifikasi permintaan reset password untuk memantau aktivitas keamanan.
-- Gunakan quick actions untuk bernavigasi cepat ke halaman manajemen user, resep, dan ulasan.
+### Fitur Admin & Operasional
+- 📊 Dashboard admin menampilkan statistik total user/resep/review/admin, penambahan mingguan, distribusi kategori, top kontributor, dan aktivitas reset password.
+- 👤 Manajemen user: pencarian, pagination, ubah role user ↔ admin, hapus akun (beserta resep dan review terkait).
+- 🥗 Moderasi resep: daftar resep dengan pencarian & pagination, hapus resep bermasalah (membersihkan review & saved list).
+- 📝 Moderasi ulasan: daftar, sortir, dan hapus review yang melanggar.
+- 🛡️ Health check endpoint & logging detail untuk debugging (upload Supabase, CORS, dsb.).
 
 ---
 
