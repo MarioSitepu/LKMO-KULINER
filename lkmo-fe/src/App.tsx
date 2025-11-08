@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
 import RecipePage from './pages/RecipePage'
 import UploadRecipePage from './pages/UploadRecipePage'
+import EditRecipePage from './pages/EditRecipePage'
 import ProfilePage from './pages/ProfilePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -35,6 +36,14 @@ function App() {
         <Route path="/" element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="recipe/:id" element={<RecipePage />} />
+        <Route
+          path="recipe/:id/edit"
+          element={
+            <ProtectedRoute>
+              <EditRecipePage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="upload" element={<UploadRecipePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="edit-profile" element={<EditProfilePage />} />

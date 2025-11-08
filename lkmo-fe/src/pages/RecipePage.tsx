@@ -6,6 +6,7 @@ import {
   UtensilsIcon,
   BookmarkIcon,
   DollarSignIcon,
+  PencilIcon,
 } from 'lucide-react'
 import { recipeAPI } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
@@ -53,7 +54,7 @@ interface Recipe {
 export default function RecipePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,12 +63,14 @@ export default function RecipePage() {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [submittingReview, setSubmittingReview] = useState(false)
+  const [canEdit, setCanEdit] = useState(false)
 
   useEffect(() => {
     if (id) {
       loadRecipe()
     }
-  }, [id])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, user?.id])
 
   const loadRecipe = async () => {
     try {
@@ -78,6 +81,14 @@ export default function RecipePage() {
         const recipeData = response.data.recipe
         setRecipe(recipeData)
         setIsSaved(recipeData.isSaved || false)
+
+        const currentUserId = user?.id || (user as any)?._id
+        const authorId = recipeData.author?._id || recipeData.author?.id
+        if (currentUserId && authorId && authorId.toString() === currentUserId.toString()) {
+          setCanEdit(true)
+        } else {
+          setCanEdit(false)
+        }
         
         // Load reviews
         if (response.data.reviews) {
@@ -95,6 +106,7 @@ export default function RecipePage() {
     } catch (err: any) {
       console.error('Error loading recipe:', err)
       setError(err.response?.data?.message || 'Gagal memuat resep')
+      setCanEdit(false)
     } finally {
       setLoading(false)
     }
@@ -216,23 +228,35 @@ export default function RecipePage() {
           <h1 className="text-3xl font-bold text-gray-800 flex-1">
             {recipe.title}
           </h1>
-          <button
-            onClick={toggleSave}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-              isSaved
-                ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
-                : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-green-500 hover:text-green-500'
-            }`}
-            title={isSaved ? 'Hapus dari tersimpan' : 'Simpan resep'}
-          >
-            <BookmarkIcon
-              size={20}
-              className={isSaved ? 'fill-current' : ''}
-            />
-            <span className="hidden sm:inline">
-              {isSaved ? 'Tersimpan' : 'Simpan'}
-            </span>
-          </button>
+          <div className="flex flex-wrap gap-2">
+            {canEdit && (
+              <button
+                onClick={() => navigate(`/recipe/${id}/edit`)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium border-2 border-green-500 text-green-600 hover:bg-green-50 transition-all duration-300"
+                title="Edit resep ini"
+              >
+                <PencilIcon size={18} />
+                <span className="hidden sm:inline">Edit Resep</span>
+              </button>
+            )}
+            <button
+              onClick={toggleSave}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                isSaved
+                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
+                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-green-500 hover:text-green-500'
+              }`}
+              title={isSaved ? 'Hapus dari tersimpan' : 'Simpan resep'}
+            >
+              <BookmarkIcon
+                size={20}
+                className={isSaved ? 'fill-current' : ''}
+              />
+              <span className="hidden sm:inline">
+                {isSaved ? 'Tersimpan' : 'Simpan'}
+              </span>
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
           <div className="flex items-center">
