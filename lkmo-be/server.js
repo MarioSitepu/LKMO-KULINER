@@ -22,8 +22,15 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Middleware - CORS configuration
+const envOrigins = process.env.CORS_ALLOWED_ORIGINS
+  || process.env.FRONTEND_URL
+  || '';
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  ...envOrigins
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean),
   'http://localhost:5173',
   'http://localhost:3000'
 ].filter(Boolean); // Remove undefined values
