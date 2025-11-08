@@ -167,11 +167,29 @@ export default function EditRecipePage() {
 
   const handleEquipmentChange = (item: string, checked: boolean) => {
     setFormData((prev) => {
-      const nextEquipment = checked
-        ? [...prev.equipment, item]
-        : prev.equipment.filter((eq) => eq !== item)
+      let nextEquipment = [...prev.equipment]
+      let nextOther = prev.otherEquipment
 
-      return { ...prev, equipment: nextEquipment }
+      if (checked) {
+        if (!nextEquipment.includes(item)) {
+          nextEquipment.push(item)
+        }
+        if (nextOther.trim()) {
+          const filteredOthers = nextOther
+            .split(',')
+            .map((value) => value.trim())
+            .filter((value) => value && value.toLowerCase() !== item.toLowerCase())
+          nextOther = filteredOthers.join(', ')
+        }
+      } else {
+        nextEquipment = nextEquipment.filter((eq) => eq !== item)
+      }
+
+      return {
+        ...prev,
+        equipment: nextEquipment,
+        otherEquipment: nextOther
+      }
     })
   }
 
@@ -248,16 +266,32 @@ export default function EditRecipePage() {
       }
 
       let allEquipment = [...formData.equipment]
+      const seen = new Set(allEquipment.map((eq) => eq.toLowerCase()))
+
       if (formData.otherEquipment.trim()) {
         const others = formData.otherEquipment
           .split(',')
           .map((item) => item.trim())
           .filter((item) => item.length > 0)
-        allEquipment = [...allEquipment, ...others]
+
+        others.forEach((value) => {
+          const canonical = MAIN_EQUIPMENT_MAP[value.toLowerCase()]
+          if (canonical) {
+            if (!seen.has(canonical.toLowerCase())) {
+              allEquipment.push(canonical)
+              seen.add(canonical.toLowerCase())
+            }
+          } else {
+            if (!seen.has(value.toLowerCase())) {
+              allEquipment.push(value)
+              seen.add(value.toLowerCase())
+            }
+          }
+        })
       }
 
       // Hilangkan duplikasi dan kosong
-      allEquipment = Array.from(new Set(allEquipment.filter((item) => item.trim().length > 0)))
+      allEquipment = allEquipment.filter((item) => item.trim().length > 0)
 
       const submitData = new FormData()
       submitData.append('title', formData.title)
