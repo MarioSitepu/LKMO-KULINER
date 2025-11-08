@@ -150,8 +150,12 @@ router.get('/', [
             return recipe.equipment.some(eq => !mainEquipment.includes(eq));
           } else {
             // Filter recipes that contain the specified equipment (exact match)
-            const normalizedFilter = filterValue.trim();
-            return recipe.equipment.some(eq => eq && eq.trim() === normalizedFilter);
+            const normalizedFilter = filterValue.trim().toLowerCase();
+            return recipe.equipment.some(eq => {
+              if (!eq) return false;
+              const normalizedEq = eq.trim().toLowerCase();
+              return normalizedEq === normalizedFilter;
+            });
           }
         });
       });
