@@ -111,7 +111,7 @@ export default function HomePage() {
               Upload Resep
             </Link>
             <Link
-              to="/category/breakfast"
+              to="/search?show=all"
               className="px-6 py-3 bg-white text-green-500 font-medium rounded-md hover:bg-green-50 transition-colors"
             >
               Jelajahi Resep

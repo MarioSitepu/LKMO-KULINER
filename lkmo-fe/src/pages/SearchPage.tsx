@@ -213,18 +213,32 @@ export default function SearchPage() {
                 : 'Filter Resep'}
               {results !== null && !loading && ` (${results.length})`}
             </h2>
-            {(selectedCategory || selectedPrice || selectedEquipment.length > 0 || searchedKeyword) && (
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => {
-                  resetFilters()
+                  setSelectedCategory('')
+                  setSelectedPrice('')
+                  setSelectedEquipment([])
                   setSearchTerm('')
-                  setSearchedKeyword('')
+                  fetchAllRecipes()
                 }}
                 className="text-sm text-green-500 hover:text-green-600"
               >
-                Reset Filter
+                Tampilkan Semua Resep
               </button>
-            )}
+              {(selectedCategory || selectedPrice || selectedEquipment.length > 0 || searchedKeyword) && (
+                <button
+                  onClick={() => {
+                    resetFilters()
+                    setSearchTerm('')
+                    setSearchedKeyword('')
+                  }}
+                  className="text-sm text-green-500 hover:text-green-600"
+                >
+                  Reset Filter
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Error message */}
