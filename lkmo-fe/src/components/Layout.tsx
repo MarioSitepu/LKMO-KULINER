@@ -49,7 +49,7 @@ export default function Layout() {
       <div
         className={`${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 fixed md:static z-40 w-64 h-full transition-transform duration-300 ease-in-out bg-white shadow-lg`}
+        } md:translate-x-0 fixed md:sticky md:top-0 md:self-start z-40 w-64 h-full md:h-screen transition-transform duration-300 ease-in-out bg-white shadow-lg`}
       >
         <div className="flex flex-col h-full">
           {/* ... (Logo tetap sama) ... */}
