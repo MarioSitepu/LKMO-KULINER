@@ -108,7 +108,11 @@ export default function LeaderboardPage() {
 
     const imageUrl = getUserImageUrl(user.image, defaultAvatar) || defaultAvatar
     const legacyImageUrl = getLegacyUserImageUrl(user.image)
-    const displayName = user.name.length > 18 ? `${user.name.slice(0, 18)}…` : user.name
+    const truncateText = (text: string, maxLength: number) =>
+      text.length > maxLength ? `${text.slice(0, maxLength).trimEnd()}…` : text
+
+    const displayName = truncateText(user.name, 16)
+    const displayBio = user.bio ? truncateText(user.bio, 60) : ''
 
     const handleClick = () => {
       navigate(`/user/${user.id}`)
@@ -117,44 +121,48 @@ export default function LeaderboardPage() {
     return (
       <div
         onClick={handleClick}
-        className={`flex items-center gap-4 p-4 rounded-lg border-2 ${getRankBgColor(
+        className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border-2 ${getRankBgColor(
           user.rank,
         )} transition-all hover:shadow-md cursor-pointer`}
       >
-        <div className="flex items-center justify-center w-10 h-10">
-          {getRankIcon(user.rank)}
-        </div>
-        <div className="flex-1 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-            <img
-              src={imageUrl}
-              data-legacy-src={legacyImageUrl || undefined}
-              alt={user.name}
-              className="w-full h-full object-cover"
-              onError={(event) => {
-                const target = event.currentTarget
-                const legacySrc = target.dataset.legacySrc
-                if (legacySrc && !target.dataset.legacyTried) {
-                  target.dataset.legacyTried = 'true'
-                  target.src = legacySrc
-                  return
-                }
-                target.onerror = null
-                target.src = defaultAvatar
-              }}
-            />
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center justify-center w-10 h-10 flex-shrink-0">
+            {getRankIcon(user.rank)}
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-800 truncate" title={user.name}>
-              {displayName}
-            </h3>
-            {user.bio && (
-              <p className="text-sm text-gray-500 truncate">{user.bio}</p>
-            )}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+              <img
+                src={imageUrl}
+                data-legacy-src={legacyImageUrl || undefined}
+                alt={user.name}
+                className="w-full h-full object-cover"
+                onError={(event) => {
+                  const target = event.currentTarget
+                  const legacySrc = target.dataset.legacySrc
+                  if (legacySrc && !target.dataset.legacyTried) {
+                    target.dataset.legacyTried = 'true'
+                    target.src = legacySrc
+                    return
+                  }
+                  target.onerror = null
+                  target.src = defaultAvatar
+                }}
+              />
+            </div>
+            <div className="min-w-0 space-y-1">
+              <h3 className="font-semibold text-gray-800 truncate" title={user.name}>
+                {displayName}
+              </h3>
+              {displayBio && (
+                <p className="text-sm text-gray-500 truncate" title={user.bio}>
+                  {displayBio}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-        <div className="text-right">
-          <div className="font-bold text-green-600">{displayValue()}</div>
+        <div className="w-full sm:w-auto sm:text-right">
+          <div className="font-bold text-green-600 whitespace-nowrap">{displayValue()}</div>
           {type === 'rating' && user.totalRatings && (
             <div className="text-xs text-gray-500">
               {user.totalRatings} rating
@@ -197,7 +205,7 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
           <TrophyIcon className="text-green-500" />
