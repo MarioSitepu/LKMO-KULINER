@@ -383,7 +383,7 @@ export default function UploadRecipePage() {
                 id="other-equipment"
                 value={formData.otherEquipment}
                 onChange={(e) => setFormData({ ...formData, otherEquipment: e.target.value })}
-                placeholder="Pisahkan dengan koma (contoh: pisau, talenan)"
+                placeholder="Masukkan peralatan lainnya (contoh: pisau)"
                 className="w-full p-3 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
               />
             </div>
