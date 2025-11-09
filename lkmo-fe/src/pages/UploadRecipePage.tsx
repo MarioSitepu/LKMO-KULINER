@@ -220,7 +220,7 @@ export default function UploadRecipePage() {
                   htmlFor="category"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Kategori*
+                Waktu Makan*
                 </label>
                 <select
                   id="category"
